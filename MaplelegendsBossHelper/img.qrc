@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/res">
+        <file>background.jpg</file>
+        <file>Mano.png</file>
+        <file>Kill Monster.png</file>
+    </qresource>
+</RCC>
