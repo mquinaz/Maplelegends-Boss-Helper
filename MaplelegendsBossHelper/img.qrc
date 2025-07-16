@@ -2,6 +2,7 @@
     <qresource prefix="/res">
         <file>background.jpg</file>
         <file>Mano.png</file>
-        <file>Kill Monster.png</file>
+        <file>Mano2.png</file>
+        <file>dead-head.png</file>
     </qresource>
 </RCC>
