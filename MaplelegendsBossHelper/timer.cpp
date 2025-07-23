@@ -11,7 +11,10 @@ Timer::Timer()
     t->start(1000);
 }
 
-
+void Timer::activateTimer()
+{
+    qDebug() << "Timer...";
+}
 
 void Timer::TimerSlot()
 {

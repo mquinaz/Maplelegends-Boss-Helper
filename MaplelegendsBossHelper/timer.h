@@ -6,9 +6,10 @@
 class Timer : public QObject
 {
     Q_OBJECT
+    QTimer *t;
 public:
     Timer();
-    QTimer *t;
+    void activateTimer();
 
 public slots:
     void TimerSlot();

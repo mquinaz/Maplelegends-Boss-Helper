@@ -1,8 +1,12 @@
 <RCC>
-    <qresource prefix="/res">
-        <file>background.jpg</file>
-        <file>Mano.png</file>
-        <file>Mano2.png</file>
-        <file>dead-head.png</file>
+    <qresource prefix="/res"/>
+    <qresource prefix="/">
+        <file>images/Bosses/Mano.png</file>
+        <file>images/background.jpg</file>
+        <file>images/timeHover.png</file>
+        <file>images/time.png</file>
+        <file>images/cancelHover.png</file>
+        <file>images/cancel.png</file>
+        <file>images/Bosses/Deo.png</file>
     </qresource>
 </RCC>
