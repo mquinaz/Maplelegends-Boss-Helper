@@ -8,5 +8,6 @@
         <file>images/cancelHover.png</file>
         <file>images/cancel.png</file>
         <file>images/Bosses/Deo.png</file>
+        <file>images/Bosses/Faust.png</file>
     </qresource>
 </RCC>

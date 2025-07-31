@@ -20,7 +20,7 @@ public:
 
 public slots:
     void timerButtonClick(QAbstractButton*);
-    void linkLabelClick();
+    void linkLabelClick(int index);
 
 private:
     Ui::MainWindow *ui;
