@@ -11,6 +11,7 @@
 #include <QAbstractButton>
 #include <string>
 #include <QDesktopServices>
+#include <QMessageBox>
 
 #include "timer.h"
 #include "monster.h"
@@ -33,54 +34,220 @@ MainWindow::MainWindow(QWidget *parent)
     palette.setBrush(QPalette::Window, bkgnd);
     this->setPalette(palette);
 
-    QLabel *label4 = new QLabel(this);
-    label4->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    label4->setStyleSheet("border-image: url(:/images/Bosses/" + QString::fromStdString(std::get<0>(monsterList[0])) + ".png) stretch;");
-    label4->setAlignment(Qt::AlignCenter);
-    label4->setGeometry(QRect(75,50,150,150));
+    QLabel *bossImage1 = new QLabel(this);
+    bossImage1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    bossImage1->setStyleSheet("border-image: url(:/images/Bosses/" + QString::fromStdString(std::get<0>(monsterList[0])) + ".png) stretch;");
+    bossImage1->setAlignment(Qt::AlignCenter);
+    bossImage1->setGeometry(QRect(75,50,150,150));
 
-    QPushButton *label6 = new QPushButton(this);
-    label6->setStyleSheet("QLabel { color : white; border: 0px;} QPushButton { background-color: #4caf50; color: white; outline: none;}");
-    label6->setText(QString::fromStdString(std::get<0>(monsterList[0])));
+    QPushButton *bossName1 = new QPushButton(this);
+    bossName1->setStyleSheet("QLabel { color : white; border: 0px;} QPushButton { background-color: #4caf50; color: white; outline: none;}");
+    bossName1->setText(QString::fromStdString(std::get<0>(monsterList[0])));
     QFont font("Courier New", 16, QFont::Bold);
-    label6->setFont(font);
-    label6->setGeometry(QRect(100,25,100,50));
-    connect(label6, SIGNAL(clicked()), this, SLOT(linkLabelClick()));
+    bossName1->setFont(font);
+    bossName1->setGeometry(QRect(100,25,100,30));
+    connect(bossName1, SIGNAL(clicked()), this, SLOT(linkLabelClick()));
 
-    QLabel *label = new QLabel(this);
-    label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    label->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
-    label->setText("-");
-    label->setAlignment(Qt::AlignCenter);
-    label->setGeometry(QRect(100,200,100,30));
+    QLabel *boss1CC1 = new QLabel(this);
+    boss1CC1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    boss1CC1->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+    boss1CC1->setText("CC1");
+    boss1CC1->setAlignment(Qt::AlignCenter);
+    boss1CC1->setGeometry(QRect(50,200,50,30));
 
-    QLabel *label2 = new QLabel(this);
-    label2->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    label2->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
-    label2->setText("-10%");
-    label2->setAlignment(Qt::AlignCenter);
-    label2->setGeometry(QRect(50,200,50,30));
+    QLabel *timer1Boss1CC1 = new QLabel(this);
+    timer1Boss1CC1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    timer1Boss1CC1->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+    timer1Boss1CC1->setText("");
+    timer1Boss1CC1->setAlignment(Qt::AlignCenter);
+    timer1Boss1CC1->setGeometry(QRect(100,200,50,30));
 
-    QLabel *label3 = new QLabel(this);
-    label3->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    label3->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
-    label3->setText("+10%");
-    label3->setAlignment(Qt::AlignCenter);
-    label3->setGeometry(QRect(200,200,50,30));
+    QLabel *timer2Boss1CC1 = new QLabel(this);
+    timer2Boss1CC1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    timer2Boss1CC1->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+    timer2Boss1CC1->setText("");
+    timer2Boss1CC1->setAlignment(Qt::AlignCenter);
+    timer2Boss1CC1->setGeometry(QRect(150,200,50,30));
 
-    QPushButton *button = new QPushButton(this);
-    button->setStyleSheet("QPushButton {border-image: url(:/images/time.png) stretch; } QPushButton::hover { border-image: url(:/images/timeHover.png) stretch; }");
-    button->setGeometry(QRect(80,240,50,50));
+    QPushButton *button1Boss1CC1 = new QPushButton(this);
+    button1Boss1CC1->setStyleSheet("QPushButton {border-image: url(:/images/time.png) stretch; } QPushButton::hover { border-image: url(:/images/timeHover.png) stretch; }");
+    button1Boss1CC1->setGeometry(QRect(210,200,30,30));
+    button1Boss1CC1->setObjectName("button1Boss1CC1");
 
-    QPushButton *button2 = new QPushButton(this);
-    button2->setStyleSheet("QPushButton {border-image: url(:/images/cancel.png) stretch; } QPushButton::hover { border-image: url(:/images/cancelHover.png) stretch; }");
-    button2->setGeometry(QRect(160,240,50,50));
+    QPushButton *button2Boss1CC1 = new QPushButton(this);
+    button2Boss1CC1->setStyleSheet("QPushButton {border-image: url(:/images/cancel.png) stretch; } QPushButton::hover { border-image: url(:/images/cancelHover.png) stretch; }");
+    button2Boss1CC1->setGeometry(QRect(250,200,30,30));
+    button2Boss1CC1->setObjectName("button2Boss1CC1");
 
+    QLabel *boss1CC2 = new QLabel(this);
+    boss1CC2->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    boss1CC2->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+    boss1CC2->setText("CC2");
+    boss1CC2->setAlignment(Qt::AlignCenter);
+    boss1CC2->setGeometry(QRect(50,230,50,30));
 
-    QButtonGroup* buttonGroup = new QButtonGroup(this);
-    buttonGroup->addButton(button);
-    buttonGroup->addButton(button2);
-    connect(buttonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(timerButtonClick(QAbstractButton*)));
+    QLabel *timer1Boss1CC2 = new QLabel(this);
+    timer1Boss1CC2->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    timer1Boss1CC2->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+    timer1Boss1CC2->setText("");
+    timer1Boss1CC2->setAlignment(Qt::AlignCenter);
+    timer1Boss1CC2->setGeometry(QRect(100,230,50,30));
+
+    QLabel *timer2Boss1CC2 = new QLabel(this);
+    timer2Boss1CC2->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    timer2Boss1CC2->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+    timer2Boss1CC2->setText("");
+    timer2Boss1CC2->setAlignment(Qt::AlignCenter);
+    timer2Boss1CC2->setGeometry(QRect(150,230,50,30));
+
+    QPushButton *button1Boss1CC2 = new QPushButton(this);
+    button1Boss1CC2->setStyleSheet("QPushButton {border-image: url(:/images/time.png) stretch; } QPushButton::hover { border-image: url(:/images/timeHover.png) stretch; }");
+    button1Boss1CC2->setGeometry(QRect(210,230,30,30));
+    button1Boss1CC2->setObjectName("button1Boss1CC2");
+
+    QPushButton *button2Boss1CC2 = new QPushButton(this);
+    button2Boss1CC2->setStyleSheet("QPushButton {border-image: url(:/images/cancel.png) stretch; } QPushButton::hover { border-image: url(:/images/cancelHover.png) stretch; }");
+    button2Boss1CC2->setGeometry(QRect(250,230,30,30));
+    button2Boss1CC2->setObjectName("button2Boss1CC2");
+
+    QLabel *boss1CC3 = new QLabel(this);
+    boss1CC3->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    boss1CC3->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+    boss1CC3->setText("CC3");
+    boss1CC3->setAlignment(Qt::AlignCenter);
+    boss1CC3->setGeometry(QRect(50,260,50,30));
+
+    QLabel *timer1Boss1CC3 = new QLabel(this);
+    timer1Boss1CC3->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    timer1Boss1CC3->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+    timer1Boss1CC3->setText("");
+    timer1Boss1CC3->setAlignment(Qt::AlignCenter);
+    timer1Boss1CC3->setGeometry(QRect(100,260,50,30));
+
+    QLabel *timer2Boss1CC3 = new QLabel(this);
+    timer2Boss1CC3->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    timer2Boss1CC3->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+    timer2Boss1CC3->setText("");
+    timer2Boss1CC3->setAlignment(Qt::AlignCenter);
+    timer2Boss1CC3->setGeometry(QRect(150,260,50,30));
+
+    QPushButton *button1Boss1CC3 = new QPushButton(this);
+    button1Boss1CC3->setStyleSheet("QPushButton {border-image: url(:/images/time.png) stretch; } QPushButton::hover { border-image: url(:/images/timeHover.png) stretch; }");
+    button1Boss1CC3->setGeometry(QRect(210,260,30,30));
+    button1Boss1CC3->setObjectName("button1Boss1CC3");
+
+    QPushButton *button2Boss1CC3 = new QPushButton(this);
+    button2Boss1CC3->setStyleSheet("QPushButton {border-image: url(:/images/cancel.png) stretch; } QPushButton::hover { border-image: url(:/images/cancelHover.png) stretch; }");
+    button2Boss1CC3->setGeometry(QRect(250,260,30,30));
+    button2Boss1CC3->setObjectName("button2Boss1CC3");
+
+    QLabel *boss1CC4 = new QLabel(this);
+    boss1CC4->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    boss1CC4->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+    boss1CC4->setText("CC4");
+    boss1CC4->setAlignment(Qt::AlignCenter);
+    boss1CC4->setGeometry(QRect(50,290,50,30));
+
+    QLabel *timer1Boss1CC4 = new QLabel(this);
+    timer1Boss1CC4->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    timer1Boss1CC4->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+    timer1Boss1CC4->setText("");
+    timer1Boss1CC4->setAlignment(Qt::AlignCenter);
+    timer1Boss1CC4->setGeometry(QRect(100,290,50,30));
+
+    QLabel *timer2Boss1CC4 = new QLabel(this);
+    timer2Boss1CC4->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    timer2Boss1CC4->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+    timer2Boss1CC4->setText("");
+    timer2Boss1CC4->setAlignment(Qt::AlignCenter);
+    timer2Boss1CC4->setGeometry(QRect(150,290,50,30));
+
+    QPushButton *button1Boss1CC4 = new QPushButton(this);
+    button1Boss1CC4->setStyleSheet("QPushButton {border-image: url(:/images/time.png) stretch; } QPushButton::hover { border-image: url(:/images/timeHover.png) stretch; }");
+    button1Boss1CC4->setGeometry(QRect(210,290,30,30));
+    button1Boss1CC4->setObjectName("button1Boss1CC4");
+
+    QPushButton *button2Boss1CC4 = new QPushButton(this);
+    button2Boss1CC4->setStyleSheet("QPushButton {border-image: url(:/images/cancel.png) stretch; } QPushButton::hover { border-image: url(:/images/cancelHover.png) stretch; }");
+    button2Boss1CC4->setGeometry(QRect(250,290,30,30));
+    button2Boss1CC4->setObjectName("button2Boss1CC4");
+
+    QLabel *boss1CC5 = new QLabel(this);
+    boss1CC5->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    boss1CC5->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+    boss1CC5->setText("CC5");
+    boss1CC5->setAlignment(Qt::AlignCenter);
+    boss1CC5->setGeometry(QRect(50,320,50,30));
+
+    QLabel *timer1Boss1CC5 = new QLabel(this);
+    timer1Boss1CC5->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    timer1Boss1CC5->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+    timer1Boss1CC5->setText("");
+    timer1Boss1CC5->setAlignment(Qt::AlignCenter);
+    timer1Boss1CC5->setGeometry(QRect(100,320,50,30));
+
+    QLabel *timer2Boss1CC5 = new QLabel(this);
+    timer2Boss1CC5->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    timer2Boss1CC5->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+    timer2Boss1CC5->setText("");
+    timer2Boss1CC5->setAlignment(Qt::AlignCenter);
+    timer2Boss1CC5->setGeometry(QRect(150,320,50,30));
+
+    QPushButton *button1Boss1CC5 = new QPushButton(this);
+    button1Boss1CC5->setStyleSheet("QPushButton {border-image: url(:/images/time.png) stretch; } QPushButton::hover { border-image: url(:/images/timeHover.png) stretch; }");
+    button1Boss1CC5->setGeometry(QRect(210,320,30,30));
+    button1Boss1CC5->setObjectName("button1Boss1CC5");
+
+    QPushButton *button2Boss1CC5 = new QPushButton(this);
+    button2Boss1CC5->setStyleSheet("QPushButton {border-image: url(:/images/cancel.png) stretch; } QPushButton::hover { border-image: url(:/images/cancelHover.png) stretch; }");
+    button2Boss1CC5->setGeometry(QRect(250,320,30,30));
+    button2Boss1CC5->setObjectName("button2Boss1CC5");
+
+    QLabel *boss1CC6 = new QLabel(this);
+    boss1CC6->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    boss1CC6->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+    boss1CC6->setText("CC6");
+    boss1CC6->setAlignment(Qt::AlignCenter);
+    boss1CC6->setGeometry(QRect(50,350,50,30));
+
+    QLabel *timer1Boss1CC6 = new QLabel(this);
+    timer1Boss1CC6->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    timer1Boss1CC6->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+    timer1Boss1CC6->setText("");
+    timer1Boss1CC6->setAlignment(Qt::AlignCenter);
+    timer1Boss1CC6->setGeometry(QRect(100,350,50,30));
+
+    QLabel *timer2Boss1CC6 = new QLabel(this);
+    timer2Boss1CC6->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    timer2Boss1CC6->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+    timer2Boss1CC6->setText("");
+    timer2Boss1CC6->setAlignment(Qt::AlignCenter);
+    timer2Boss1CC6->setGeometry(QRect(150,350,50,30));
+
+    QPushButton *button1Boss1CC6 = new QPushButton(this);
+    button1Boss1CC6->setStyleSheet("QPushButton {border-image: url(:/images/time.png) stretch; } QPushButton::hover { border-image: url(:/images/timeHover.png) stretch; }");
+    button1Boss1CC6->setGeometry(QRect(210,350,30,30));
+    button1Boss1CC6->setObjectName("button1Boss1CC6");
+
+    QPushButton *button2Boss1CC6 = new QPushButton(this);
+    button2Boss1CC6->setStyleSheet("QPushButton {border-image: url(:/images/cancel.png) stretch; } QPushButton::hover { border-image: url(:/images/cancelHover.png) stretch; }");
+    button2Boss1CC6->setGeometry(QRect(250,350,30,30));
+    button2Boss1CC6->setObjectName("button2Boss1CC6");
+
+    QButtonGroup* groupBoss1 = new QButtonGroup(this);
+    groupBoss1->addButton(button1Boss1CC1);
+    groupBoss1->addButton(button2Boss1CC1);
+    groupBoss1->addButton(button1Boss1CC2);
+    groupBoss1->addButton(button2Boss1CC2);
+    groupBoss1->addButton(button1Boss1CC3);
+    groupBoss1->addButton(button2Boss1CC3);
+    groupBoss1->addButton(button1Boss1CC4);
+    groupBoss1->addButton(button2Boss1CC4);
+    groupBoss1->addButton(button1Boss1CC5);
+    groupBoss1->addButton(button2Boss1CC5);
+    groupBoss1->addButton(button1Boss1CC6);
+    groupBoss1->addButton(button2Boss1CC6);
+    connect(groupBoss1, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(timerButtonClick(QAbstractButton*)));
 }
 
 MainWindow::~MainWindow()
@@ -91,9 +258,48 @@ MainWindow::~MainWindow()
 
 void MainWindow::timerButtonClick(QAbstractButton* button)
 {
-    qDebug() << "Here" << button->text();
+    QString buttonName = button->objectName();
+    qDebug() << buttonName;
 
-    t.activateTimer();
+    if(buttonName.left(7) == "button2")
+    {
+        std::string data = buttonName.toStdString();
+        std::string bossIndex = data.substr( data.find("Boss") + 4, data.find("CC") - data.find("Boss") - 4);
+        std::string ccIndex = data.substr(data.find("CC") + 2, data.size());
+
+        std::string descriptionString = "Are you sure you want to reset\nthe timer on boss " + std::get<0>(monsterList[stoi(bossIndex) - 1]) + " CC" + ccIndex + "?";
+        char description[descriptionString.size() + 1];
+        description[descriptionString.size()] = '\0';
+        std::copy(descriptionString.begin(), descriptionString.end(), description);
+
+        switch( QMessageBox::question(
+            this,
+            tr("Reset Timer"),
+            tr(description),
+
+            QMessageBox::Yes |
+                QMessageBox::Cancel,
+
+            QMessageBox::Cancel ) )
+        {
+        case QMessageBox::Yes:
+            qDebug( "yes" );
+            //need to reset timer
+            break;
+        case QMessageBox::Cancel:
+            qDebug( "cancel" );
+            break;
+        default:
+            qDebug( "close" );
+            break;
+        }
+    }
+    else if(buttonName.left(7) == "button1")
+    {
+        qDebug() << "make timer";
+        //activate specifc timer
+        //t.activateTimer();
+    }
 }
 
 void MainWindow::linkLabelClick()
