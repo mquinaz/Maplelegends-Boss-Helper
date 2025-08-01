@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include <QDebug>
 #include <QTimer>
 #include <QTime>
@@ -54,18 +55,12 @@ MainWindow::MainWindow(QWidget *parent)
     int numRow = 0;
     int numBossesPerRow = width / spaceBetweenBossesx;
 
-    QVector<MonsterUI> listBossUI;
-
     for(int i=0;i<(int) monsterList.size();i++)
     {
         if(i != 0 && i % numBossesPerRow == 0)
             numRow++;
 
-        timerList.resize(monsterList.size());
-        timerList[i] = qMakePair(new QTimer(this), new QTimer(this));
-        connect(timerList[i].first, &QTimer::timeout, this, [=]() { timerUpdate(1, i); });
-        connect(timerList[i].second, &QTimer::timeout, this, [=]() { timerUpdate(2, i); });
-
+        listBossUI.reserve(monsterList.size());
         MonsterUI bossUI;
 
         bossUI.bossImage = new QLabel(this);
@@ -88,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
         bossUI.timer2BossCC.resize(numCC);
         bossUI.button1BossCC.resize(numCC);
         bossUI.button2BossCC.resize(numCC);
+        bossUI.timerList.resize(numCC);
         for(int c = 0; c < numCC; c++)
         {
             bossUI.bossCC[c] = new QLabel(this);
@@ -125,6 +121,9 @@ MainWindow::MainWindow(QWidget *parent)
 
             bossUI.groupBoss->addButton(bossUI.button1BossCC[c]);
             bossUI.groupBoss->addButton(bossUI.button2BossCC[c]);
+
+            bossUI.timerList[c] = std::make_tuple(new QTimer(this), QTime(), QTime(), QTime());
+            connect(get<0>(bossUI.timerList[c]), &QTimer::timeout, this, [=]() { timerUpdate(bossUI.timer1BossCC[c], bossUI.timer2BossCC[c], i, c); });
         }
         listBossUI.push_back(bossUI);
         connect(listBossUI[i].groupBoss, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(timerButtonClick(QAbstractButton*)));
@@ -178,8 +177,10 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
     }
     else if(buttonName.left(7) == "button1")
     {
-        QTime lowerBoundTime = QTime::currentTime();
-        QTime upperBoundTime = lowerBoundTime;
+        QTime boundTime = QTime::currentTime();
+        QTime lowerBoundTime = boundTime;
+        QTime upperBoundTime = boundTime;
+
         lowerBoundTime = lowerBoundTime.addSecs(std::get<1>(monsterList[bossIndex.toInt() - 1]) * 0.9 * 60);
         upperBoundTime = upperBoundTime.addSecs(std::get<1>(monsterList[bossIndex.toInt() - 1]) * 1.1 * 60);
         QString timer1 = lowerBoundTime.toString("hh:mm");
@@ -190,8 +191,10 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
         this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setText(timer1);
         this->findChild<QLabel *>("timer2Boss" + bossIndex + "CC" + ccIndex)->setText(timer2);
 
-
-        timerList[bossIndex.toInt() - 1].first->start(1000);
+        get<1>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1]) = boundTime;
+        get<2>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1]) = lowerBoundTime;
+        get<3>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1]) = upperBoundTime;
+        get<0>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1])->start(1000);
     }
 }
 
@@ -200,8 +203,16 @@ void MainWindow::linkLabelClick(int index)
     QDesktopServices::openUrl( QUrl( QString::fromStdString( std::get<2>(monsterList[index]))));
 }
 
-void MainWindow::timerUpdate(int label, int index)
+void MainWindow::timerUpdate(QLabel *labelTimer1, QLabel *labelTimer2, int bossIndex, int ccIndex)
 {
-    qDebug() << "here" << label << " " << index;
-    this->findChild<QLabel *>("timer1Boss3CC1")->setText("dead");
+    get<2>(listBossUI[bossIndex].timerList[ccIndex]) = get<2>(listBossUI[bossIndex].timerList[ccIndex]).addSecs(-1 * 60);
+    get<3>(listBossUI[bossIndex].timerList[ccIndex]) = get<3>(listBossUI[bossIndex].timerList[ccIndex]).addSecs(-1 * 60);
+
+    QString timer1 = get<2>(listBossUI[bossIndex].timerList[ccIndex]).toString("hh:mm");
+    QString timer2 =  get<3>(listBossUI[bossIndex].timerList[ccIndex]).toString("hh:mm");
+
+    qDebug() << timer1 << " --- " << timer2;
+
+    labelTimer1->setText(timer1);
+    labelTimer2->setText(timer2);
 }

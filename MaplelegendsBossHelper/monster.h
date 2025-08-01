@@ -10,11 +10,13 @@ struct MonsterUI {
     QVector<QPushButton *> button1BossCC;
     QVector<QPushButton *> button2BossCC;
     QButtonGroup* groupBoss;
+    QVector<std::tuple<QTimer *, QTime, QTime, QTime>> timerList;
 };
 
-QVector<QPair<QTimer *, QTimer *>> timerList;
+QVector<MonsterUI> listBossUI;
 
 //missing bigfoot, headless horseman
+
 //Name, spawn time, link, showOnScreen
 std::vector <std::tuple <std::string, int, std::string, bool> > monsterList =
 {
