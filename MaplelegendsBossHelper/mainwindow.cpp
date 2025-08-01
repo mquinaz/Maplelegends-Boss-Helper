@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QVector<MonsterUI> listBossUI;
 
-    for(int i=0;i<monsterList.size();i++)
+    for(int i=0;i<(int) monsterList.size();i++)
     {
         MonsterUI bossUI;
 
@@ -125,23 +125,21 @@ MainWindow::~MainWindow()
 void MainWindow::timerButtonClick(QAbstractButton* button)
 {
     QString buttonName = button->objectName();
+    int buttonBossIndex = buttonName.lastIndexOf('s');
+    int buttonCCIndex = buttonName.lastIndexOf('C');
+    QString bossIndex = buttonName.mid(buttonBossIndex + 1, buttonCCIndex - buttonBossIndex - 2);
+    QString ccIndex = buttonName.mid(buttonCCIndex + 1, buttonName.size());
     qDebug() << buttonName;
+
 
     if(buttonName.left(7) == "button2")
     {
-        std::string data = buttonName.toStdString();
-        std::string bossIndex = data.substr( data.find("Boss") + 4, data.find("CC") - data.find("Boss") - 4);
-        std::string ccIndex = data.substr(data.find("CC") + 2, data.size());
-
-        std::string descriptionString = "Are you sure you want to reset\nthe timer on boss " + std::get<0>(monsterList[stoi(bossIndex) - 1]) + " CC" + ccIndex + "?";
-        char description[descriptionString.size() + 1];
-        description[descriptionString.size()] = '\0';
-        std::copy(descriptionString.begin(), descriptionString.end(), description);
+        QString descriptionString = "Are you sure you want to reset\nthe timer on boss " +  QString::fromStdString(std::get<0>(monsterList[bossIndex.toInt() - 1])) + " CC" + ccIndex + "?";
 
         switch( QMessageBox::question(
             this,
             tr("Reset Timer"),
-            tr(description),
+            tr(descriptionString.toUtf8().constData()),
 
             QMessageBox::Yes |
                 QMessageBox::Cancel,
@@ -150,7 +148,7 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
         {
         case QMessageBox::Yes:
             qDebug( "yes" );
-            //need to reset timer
+            this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setText("");
             break;
         case QMessageBox::Cancel:
             qDebug( "cancel" );
@@ -164,7 +162,7 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
     {
         QTime time = QTime::currentTime();
         QString timeText = time.toString("hh:mm");
-        this->findChild<QLabel*>("timer1Boss1CC1")->setText(timeText);
+        this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setText(timeText);
         //activate specifc timer
         //t.activateTimer();
     }
@@ -172,8 +170,6 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
 
 void MainWindow::linkLabelClick(int index)
 {
-    //QPushButton *button = qobject_cast<QPushButton*>(sender());
-    //int index = button->objectName();
     QDesktopServices::openUrl( QUrl( QString::fromStdString( std::get<2>(monsterList[index]))));
 }
 
