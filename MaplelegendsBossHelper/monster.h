@@ -17,7 +17,7 @@ struct MonsterUI {
 std::vector <std::tuple <std::string, int, std::string, bool> > monsterList =
 {
     {"Black Crow", 23 * 60, "https://maplelegends.com/lib/monster?id=9400014", true},
-    {"Blue Mushmom", 23 * 60, "https://maplelegends.com/lib/monster?id=9400205", true},
+    {"Blue Mushmom", 4 * 60, "https://maplelegends.com/lib/monster?id=9400205", true},
     {"Deo", 60, "https://maplelegends.com/lib/monster?id=3220001", true},
     {"Dodo", 4 * 60, "https://maplelegends.com/lib/monster?id=8220004", true},
     {"Dyle", 2 * 60, "https://maplelegends.com/lib/monster?id=6220000", true},
