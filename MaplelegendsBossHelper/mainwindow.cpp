@@ -13,8 +13,8 @@
 #include <string>
 #include <QDesktopServices>
 #include <QMessageBox>
+#include <QScrollBar>
 
-#include "timer.h"
 #include "monster.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -34,6 +34,11 @@ MainWindow::MainWindow(QWidget *parent)
     QPalette palette;
     palette.setBrush(QPalette::Window, bkgnd);
     this->setPalette(palette);
+
+    QScrollBar *scrollbar = new QScrollBar(this);
+    scrollbar->setMinimum(0);
+    scrollbar->setMaximum(4000);
+    scrollbar->setGeometry(QRect(width - 100,0,25,4000));
 
     int numCC = 6;
     QFont font("Courier New", 16, QFont::Bold);
@@ -55,6 +60,11 @@ MainWindow::MainWindow(QWidget *parent)
     {
         if(i != 0 && i % numBossesPerRow == 0)
             numRow++;
+
+        timerList.resize(monsterList.size());
+        timerList[i] = qMakePair(new QTimer(this), new QTimer(this));
+        connect(timerList[i].first, &QTimer::timeout, this, [=]() { timerUpdate(1, i); });
+        connect(timerList[i].second, &QTimer::timeout, this, [=]() { timerUpdate(2, i); });
 
         MonsterUI bossUI;
 
@@ -153,7 +163,10 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
         {
         case QMessageBox::Yes:
             qDebug( "yes" );
+            this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122);");
+            this->findChild<QLabel *>("timer2Boss" + bossIndex + "CC" + ccIndex)->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122);");
             this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setText("");
+            this->findChild<QLabel *>("timer2Boss" + bossIndex + "CC" + ccIndex)->setText("");
             break;
         case QMessageBox::Cancel:
             qDebug( "cancel" );
@@ -165,11 +178,20 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
     }
     else if(buttonName.left(7) == "button1")
     {
-        QTime time = QTime::currentTime();
-        QString timeText = time.toString("hh:mm");
-        this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setText(timeText);
-        //activate specifc timer
-        //t.activateTimer();
+        QTime lowerBoundTime = QTime::currentTime();
+        QTime upperBoundTime = lowerBoundTime;
+        lowerBoundTime = lowerBoundTime.addSecs(std::get<1>(monsterList[bossIndex.toInt() - 1]) * 0.9 * 60);
+        upperBoundTime = upperBoundTime.addSecs(std::get<1>(monsterList[bossIndex.toInt() - 1]) * 1.1 * 60);
+        QString timer1 = lowerBoundTime.toString("hh:mm");
+        QString timer2 = upperBoundTime.toString("hh:mm");
+
+        this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
+        this->findChild<QLabel *>("timer2Boss" + bossIndex + "CC" + ccIndex)->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
+        this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setText(timer1);
+        this->findChild<QLabel *>("timer2Boss" + bossIndex + "CC" + ccIndex)->setText(timer2);
+
+
+        timerList[bossIndex.toInt() - 1].first->start(1000);
     }
 }
 
@@ -178,3 +200,8 @@ void MainWindow::linkLabelClick(int index)
     QDesktopServices::openUrl( QUrl( QString::fromStdString( std::get<2>(monsterList[index]))));
 }
 
+void MainWindow::timerUpdate(int label, int index)
+{
+    qDebug() << "here" << label << " " << index;
+    this->findChild<QLabel *>("timer1Boss3CC1")->setText("dead");
+}

@@ -12,6 +12,8 @@ struct MonsterUI {
     QButtonGroup* groupBoss;
 };
 
+QVector<QPair<QTimer *, QTimer *>> timerList;
+
 //missing bigfoot, headless horseman
 //Name, spawn time, link, showOnScreen
 std::vector <std::tuple <std::string, int, std::string, bool> > monsterList =

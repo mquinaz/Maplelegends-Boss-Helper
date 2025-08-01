@@ -10,13 +10,11 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp \
-    timer.cpp
+    mainwindow.cpp
 
 HEADERS += \
     mainwindow.h \
-    monster.h \
-    timer.h
+    monster.h
 
 FORMS += \
     mainwindow.ui
