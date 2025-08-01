@@ -9,5 +9,6 @@
         <file>images/cancel.png</file>
         <file>images/Bosses/Deo.png</file>
         <file>images/Bosses/Faust.png</file>
+        <file>images/Bosses/Seruf.png</file>
     </qresource>
 </RCC>
