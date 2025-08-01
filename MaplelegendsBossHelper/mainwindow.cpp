@@ -35,18 +35,26 @@ MainWindow::MainWindow(QWidget *parent)
     palette.setBrush(QPalette::Window, bkgnd);
     this->setPalette(palette);
 
+    QFont font("Courier New", 16, QFont::Bold);
+    int bossImagex = 75, bossImagey = 50, bossImageDimensionx = 150, bossImageDimensiony = 150;
+    int bossNamex = 100, bossNamey = 25, bossNameDimensionx = 100, bossNameDimensiony = 30;
+    int bossx = 50, bossy = 200, bossDimensionx = 50, bossDimensiony = 30;
+    int timerBossx = 100, timerBossy = 200, timerBossDimensionx = 50, timerBossDimensiony = 30;
+    int spaceBetweenTimerx = 50;
+    int buttonBossx = 210, buttonBossy = 200, buttonBossDimensionx = 30, buttonBossDimensiony = 30;
+    int spaceBetweenButtonx = 40;
+
     QLabel *bossImage1 = new QLabel(this);
     bossImage1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     bossImage1->setStyleSheet("border-image: url(:/images/Bosses/" + QString::fromStdString(std::get<0>(monsterList[0])) + ".png) stretch;");
     bossImage1->setAlignment(Qt::AlignCenter);
-    bossImage1->setGeometry(QRect(75,50,150,150));
+    bossImage1->setGeometry(QRect(bossImagex,bossImagey,bossImageDimensionx,bossImageDimensiony));
 
     QPushButton *bossName1 = new QPushButton(this);
     bossName1->setStyleSheet("QLabel { color : white; border: 0px;} QPushButton { background-color: #4caf50; color: white; outline: none;}");
     bossName1->setText(QString::fromStdString(std::get<0>(monsterList[0])));
-    QFont font("Courier New", 16, QFont::Bold);
     bossName1->setFont(font);
-    bossName1->setGeometry(QRect(100,25,100,30));
+    bossName1->setGeometry(QRect(bossNamex,bossNamey,bossNameDimensionx,bossNameDimensiony));
     connect(bossName1, &QPushButton::clicked, this, [=]() { linkLabelClick(0); });
 
     QLabel *boss1CC1 = new QLabel(this);
@@ -54,14 +62,14 @@ MainWindow::MainWindow(QWidget *parent)
     boss1CC1->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
     boss1CC1->setText("CC1");
     boss1CC1->setAlignment(Qt::AlignCenter);
-    boss1CC1->setGeometry(QRect(50,200,50,30));
+    boss1CC1->setGeometry(QRect(bossx,bossy,bossDimensionx,bossDimensiony));
 
     QLabel *timer1Boss1CC1 = new QLabel(this);
     timer1Boss1CC1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     timer1Boss1CC1->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
     timer1Boss1CC1->setText("");
     timer1Boss1CC1->setAlignment(Qt::AlignCenter);
-    timer1Boss1CC1->setGeometry(QRect(100,200,50,30));
+    timer1Boss1CC1->setGeometry(QRect(timerBossx,timerBossy,timerBossDimensionx,timerBossDimensiony));
     timer1Boss1CC1->setObjectName("timer1Boss1CC1");
 
     QLabel *timer2Boss1CC1 = new QLabel(this);
@@ -69,16 +77,16 @@ MainWindow::MainWindow(QWidget *parent)
     timer2Boss1CC1->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
     timer2Boss1CC1->setText("");
     timer2Boss1CC1->setAlignment(Qt::AlignCenter);
-    timer2Boss1CC1->setGeometry(QRect(150,200,50,30));
+    timer2Boss1CC1->setGeometry(QRect(timerBossx + spaceBetweenTimerx,timerBossy,timerBossDimensionx,timerBossDimensiony));
 
     QPushButton *button1Boss1CC1 = new QPushButton(this);
     button1Boss1CC1->setStyleSheet("QPushButton {border-image: url(:/images/time.png) stretch; } QPushButton::hover { border-image: url(:/images/timeHover.png) stretch; }");
-    button1Boss1CC1->setGeometry(QRect(210,200,30,30));
+    button1Boss1CC1->setGeometry(QRect(buttonBossx,buttonBossy,buttonBossDimensionx,buttonBossDimensiony));
     button1Boss1CC1->setObjectName("button1Boss1CC1");
 
     QPushButton *button2Boss1CC1 = new QPushButton(this);
     button2Boss1CC1->setStyleSheet("QPushButton {border-image: url(:/images/cancel.png) stretch; } QPushButton::hover { border-image: url(:/images/cancelHover.png) stretch; }");
-    button2Boss1CC1->setGeometry(QRect(250,200,30,30));
+    button2Boss1CC1->setGeometry(QRect(buttonBossx + spaceBetweenButtonx,buttonBossy,buttonBossDimensionx,buttonBossDimensiony));
     button2Boss1CC1->setObjectName("button2Boss1CC1");
 
     QLabel *boss1CC2 = new QLabel(this);
@@ -529,3 +537,4 @@ void MainWindow::linkLabelClick(int index)
     //int index = button->objectName();
     QDesktopServices::openUrl( QUrl( QString::fromStdString( std::get<2>(monsterList[index]))));
 }
+
