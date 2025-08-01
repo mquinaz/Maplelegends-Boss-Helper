@@ -1,6 +1,16 @@
 #ifndef MONSTER_H
 #define MONSTER_H
 
+struct MonsterUI {
+    QLabel *bossImage;
+    QPushButton *bossName;
+    QVector<QLabel *> bossCC;
+    QVector<QLabel *> timer1BossCC;
+    QVector<QLabel *> timer2BossCC;
+    QVector<QPushButton *> button1BossCC;
+    QVector<QPushButton *> button2BossCC;
+    QButtonGroup* groupBoss;
+};
 
 //Name, spawn time, link, showOnScreen
 std::vector <std::tuple <std::string, int, std::string, bool> > monsterList =
