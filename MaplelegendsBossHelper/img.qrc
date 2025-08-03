@@ -35,5 +35,7 @@
         <file>images/Bosses/Female Boss.png</file>
         <file>images/Bosses/Lilynouch.png</file>
         <file>images/Bosses/Lyka.png</file>
+        <file>images/timeChangeHover.png</file>
+        <file>images/timeChange.png</file>
     </qresource>
 </RCC>

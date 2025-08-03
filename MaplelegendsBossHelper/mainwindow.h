@@ -17,10 +17,11 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    bool displayTime;
 public slots:
     void timerButtonClick(QAbstractButton*);
     void linkLabelClick(int index);
-
+    void changeDisplayTime();
     void timerUpdate(QLabel *labelTimer1, QLabel *labelTimer2, int bossIndex, int ccIndex);
 
 private:
