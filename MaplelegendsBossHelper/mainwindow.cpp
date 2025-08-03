@@ -27,34 +27,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    displayTime = true;
-    //scrollArea->setStyleSheet("background: transparent;");
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect  screenGeometry = screen->geometry();
     int height = screenGeometry.height();
     int width = screenGeometry.width();
     this->resize(width, height);
 
-    QScrollArea *scrollArea = new QScrollArea(this);
-    scrollArea->setGeometry(0, 0, width, height);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollArea->setWidgetResizable(true);
-
-    QWidget *contentWidget = new QWidget();
-    scrollArea->setWidget(contentWidget);
-
-    QPixmap bkgnd(":/images/background.jpg");
-    bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
-    QPalette palette;
-    palette.setBrush(QPalette::Window, bkgnd);
-    this->setAutoFillBackground(true);
-    this->setPalette(palette);
-
-    QPushButton *buttonDisplayTimer = new QPushButton(contentWidget);
-    buttonDisplayTimer->setStyleSheet("QPushButton {border-image: url(:/images/timeChange.png) stretch; } QPushButton::hover { border-image: url(:/images/timeChangeHover.png) stretch; }");
-    buttonDisplayTimer->setGeometry(QRect(width - 75, 25, 50, 50));
-    connect(buttonDisplayTimer, &QPushButton::clicked, this, [=]() { changeDisplayTime(); });
+    displayTime = true;
 
     int numCC = 6;
     QFont font("Courier New", 16, QFont::Bold);
@@ -69,6 +48,27 @@ MainWindow::MainWindow(QWidget *parent)
     int spaceBetweenBossesx = 300, spaceBetweenBossesy = 400;
     int numRow = 0;
     int numBossesPerRow = width / spaceBetweenBossesx;
+
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setStyleSheet("background: transparent;");
+    scrollArea->setGeometry(0, 0, width, height);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setWidgetResizable(true);
+
+    QWidget *contentWidget = new QWidget();
+
+    QPixmap bkgnd(":/images/background.jpg");
+    bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
+    QPalette palette;
+    palette.setBrush(QPalette::Window, bkgnd);
+    this->setAutoFillBackground(true);
+    this->setPalette(palette);
+
+    QPushButton *buttonDisplayTimer = new QPushButton(contentWidget);
+    buttonDisplayTimer->setStyleSheet("QPushButton {border-image: url(:/images/timeChange.png) stretch; } QPushButton::hover { border-image: url(:/images/timeChangeHover.png) stretch; }");
+    buttonDisplayTimer->setGeometry(QRect(width - 75, 25, 50, 50));
+    connect(buttonDisplayTimer, &QPushButton::clicked, this, [=]() { changeDisplayTime(); });
 
     for(int i=0;i<(int) monsterList.size();i++)
     {
@@ -144,13 +144,8 @@ MainWindow::MainWindow(QWidget *parent)
         connect(listBossUI[i].groupBoss, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(timerButtonClick(QAbstractButton*)));
     }
 
-    contentWidget->resize(width, (numRow + 1) * spaceBetweenBossesy);
-    qDebug() << "Main window height:" << height;
-    qDebug() << "Content height:" << (numRow + 1) * spaceBetweenBossesy;
-    //scrollArea->setWidget(contentWidget);
-    //QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    //mainLayout->addWidget(scrollArea);
-    //layout->addWidget(scrollbar);
+    contentWidget->setMinimumSize(width, bossImagey + spaceBetweenBossesy * (numRow + 1));
+    scrollArea->setWidget(contentWidget);
 }
 
 MainWindow::~MainWindow()
