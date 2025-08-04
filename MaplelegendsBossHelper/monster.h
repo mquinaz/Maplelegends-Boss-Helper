@@ -1,6 +1,8 @@
 #ifndef MONSTER_H
 #define MONSTER_H
 
+int numCC = 6;
+
 struct MonsterUI {
     QLabel *bossImage;
     QPushButton *bossName;
@@ -10,7 +12,7 @@ struct MonsterUI {
     QVector<QPushButton *> button1BossCC;
     QVector<QPushButton *> button2BossCC;
     QButtonGroup* groupBoss;
-    QVector<std::tuple<QTimer *, QTime, QTime, QTime>> timerList;
+    QVector<std::tuple<QTimer *, QDateTime, QDateTime, QDateTime>> timerList;
 };
 
 QVector<MonsterUI> listBossUI;

@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTime>
+#include <QDateTime>
 #include <QWidget>
 #include <QScreen>
 #include <QApplication>
@@ -17,7 +18,6 @@
 #include <QScrollBar>
 #include <QScrollArea>
 #include <QWidget>
-#include <QVBoxLayout>
 
 #include "monster.h"
 
@@ -35,8 +35,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     displayTime = true;
 
-    int numCC = 6;
     QFont font("Courier New", 16, QFont::Bold);
+    int buttonDisplayx = width - 75, buttonDisplayy = 25, buttonDisplayDimensionx = 50, buttonDisplayDimensiony = 50;
     int bossImagex = 75, bossImagey = 50, bossImageDimensionx = 150, bossImageDimensiony = 150;
     int bossNamex = 75, bossNamey = 25, bossNameDimensionx = 175, bossNameDimensiony = 30;
     int bossx = 50, bossy = 200, bossDimensionx = 50, bossDimensiony = 30;
@@ -67,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QPushButton *buttonDisplayTimer = new QPushButton(contentWidget);
     buttonDisplayTimer->setStyleSheet("QPushButton {border-image: url(:/images/timeChange.png) stretch; } QPushButton::hover { border-image: url(:/images/timeChangeHover.png) stretch; }");
-    buttonDisplayTimer->setGeometry(QRect(width - 75, 25, 50, 50));
+    buttonDisplayTimer->setGeometry(QRect(buttonDisplayx, buttonDisplayy, buttonDisplayDimensionx, buttonDisplayDimensiony));
     connect(buttonDisplayTimer, &QPushButton::clicked, this, [=]() { changeDisplayTime(); });
 
     for(int i=0;i<(int) monsterList.size();i++)
@@ -137,7 +137,7 @@ MainWindow::MainWindow(QWidget *parent)
             bossUI.groupBoss->addButton(bossUI.button1BossCC[c]);
             bossUI.groupBoss->addButton(bossUI.button2BossCC[c]);
 
-            bossUI.timerList[c] = std::make_tuple(new QTimer(this), QTime(), QTime(), QTime());
+            bossUI.timerList[c] = std::make_tuple(new QTimer(this), QDateTime(), QDateTime(), QDateTime());
             connect(get<0>(bossUI.timerList[c]), &QTimer::timeout, this, [=]() { timerUpdate(bossUI.timer1BossCC[c], bossUI.timer2BossCC[c], i, c); });
         }
         listBossUI.push_back(bossUI);
@@ -198,9 +198,9 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
     else if(buttonName.left(7) == "button1" && !get<0>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1])->isActive())
     {
         qDebug() << "Entered";
-        QTime boundTime = QTime::currentTime();
-        QTime lowerBoundTime = boundTime;
-        QTime upperBoundTime = boundTime;
+        QDateTime boundTime = QDateTime::currentDateTime();
+        QDateTime lowerBoundTime = boundTime;
+        QDateTime upperBoundTime = boundTime;
 
         lowerBoundTime = lowerBoundTime.addSecs(std::get<1>(monsterList[bossIndex.toInt() - 1]) * 0.9 * 60);
         upperBoundTime = upperBoundTime.addSecs(std::get<1>(monsterList[bossIndex.toInt() - 1]) * 1.1 * 60);
@@ -213,7 +213,7 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
         }
         else
         {
-            int boundTimeSeconds = QTime(0,0).secsTo(boundTime);
+            int boundTimeSeconds = QDateTime(boundTime.date() ,QTime(0,0)).secsTo(boundTime);
             timer1 = lowerBoundTime.addSecs(-boundTimeSeconds).toString("hh:mm");
             timer2 = upperBoundTime.addSecs(-boundTimeSeconds).toString("hh:mm");
         }
@@ -289,7 +289,7 @@ void MainWindow::timerUpdate(QLabel *labelTimer1, QLabel *labelTimer2, int bossI
             qDebug() << differenceTimers1;
             if(differenceTimers1 > 0)
             {
-                QString timer1 = QTime(0,0).addSecs(differenceTimers1).toString("hh:mm");
+                QString timer1 = QDateTime(get<1>(listBossUI[bossIndex].timerList[ccIndex]).date() ,QTime(0,0)).addSecs(differenceTimers1).toString("hh:mm");
                 labelTimer1->setText(timer1);
             }
             else if(differenceTimers1 <= 0)
@@ -303,7 +303,7 @@ void MainWindow::timerUpdate(QLabel *labelTimer1, QLabel *labelTimer2, int bossI
         qDebug() << differenceTimers2;
         if(differenceTimers2 > 0)
         {
-            QString timer2 = QTime(0,0).addSecs(differenceTimers2).toString("hh:mm");
+            QString timer2 = QDateTime(get<1>(listBossUI[bossIndex].timerList[ccIndex]).date() ,QTime(0,0)).addSecs(differenceTimers2).toString("hh:mm");
             labelTimer2->setText(timer2);
         }
         else if(differenceTimers2 <= 0)
@@ -318,5 +318,32 @@ void MainWindow::timerUpdate(QLabel *labelTimer1, QLabel *labelTimer2, int bossI
 void MainWindow::changeDisplayTime()
 {
     displayTime = !displayTime;
-    //atualizar os labels
+
+    for(int i=0;i<(int) monsterList.size();i++)
+    {
+        for(int c = 0; c < numCC; c++)
+        {
+            QString timer1, timer2;
+            if(displayTime)
+            {
+                timer1 = get<2>(listBossUI[i].timerList[c]).toString("hh:mm");
+                timer2 = get<3>(listBossUI[i].timerList[c]).toString("hh:mm");
+            }
+            else
+            {
+                int differenceTimers1 = get<1>(listBossUI[i].timerList[c]).secsTo( get<2>(listBossUI[i].timerList[c]));
+                int differenceTimers2 = get<1>(listBossUI[i].timerList[c]).secsTo( get<3>(listBossUI[i].timerList[c]));
+                timer1 = QDateTime(get<1>(listBossUI[i].timerList[c]).date() ,QTime(0,0)).addSecs(differenceTimers1).toString("hh:mm");
+                timer2 = QDateTime(get<1>(listBossUI[i].timerList[c]).date() ,QTime(0,0)).addSecs(differenceTimers2).toString("hh:mm");
+            }
+
+            QLabel *labelTimer1 = this->findChild<QLabel *>("timer1Boss" + QString::number(i + 1) + "CC" + QString::number(c + 1));
+            QLabel *labelTimer2 = this->findChild<QLabel *>("timer2Boss" + QString::number(i + 1) + "CC" + QString::number(c + 1));
+
+            if(labelTimer1->text() != "")
+                labelTimer1->setText(timer1);
+            if(labelTimer2->text() != "")
+                labelTimer2->setText(timer2);
+        }
+    }
 }
