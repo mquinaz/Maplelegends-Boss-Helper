@@ -210,12 +210,17 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
         {
         case QMessageBox::Yes:
             qDebug( "yes" );
+
             get<0>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1])->stop();
 
             this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122);");
             this->findChild<QLabel *>("timer2Boss" + bossIndex + "CC" + ccIndex)->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122);");
             this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setText("");
             this->findChild<QLabel *>("timer2Boss" + bossIndex + "CC" + ccIndex)->setText("");
+
+            formatTimerBackup(bossIndex.toInt() - 1, ccIndex.toInt() - 1);
+            writeTimerBackup();
+
             break;
         case QMessageBox::Cancel:
             qDebug( "cancel" );
@@ -258,7 +263,7 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
         get<3>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1]) = upperBoundTime;
         get<0>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1])->start(1000); //mudar * 60
 
-        addTimerBackup(bossIndex.toInt() - 1, ccIndex.toInt() - 1, boundTime.toString());
+        formatTimerBackup(bossIndex.toInt() - 1, ccIndex.toInt() - 1, boundTime.toString());
         writeTimerBackup();
     }
 }
@@ -381,7 +386,7 @@ void MainWindow::changeDisplayTime()
     }
 }
 
-void MainWindow::addTimerBackup(int bossIndex, int ccIndex, QString time)
+void MainWindow::formatTimerBackup(int bossIndex, int ccIndex, QString time)
 {
     QString backupString = backupTimer[bossIndex].mid( backupTimer[bossIndex].indexOf(':') + 1, backupTimer[bossIndex].indexOf('\n'));
     QString final = backupTimer[bossIndex].left( backupTimer[bossIndex].indexOf(':') + 1);

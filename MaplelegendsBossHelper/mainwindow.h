@@ -23,7 +23,7 @@ public:
     QVector<QString> backupTimer;
 
     void writeTimerBackup();
-    void addTimerBackup(int bossIndex, int ccIndex, QString time);
+    void formatTimerBackup(int bossIndex, int ccIndex, QString time = "");
 public slots:
     void timerButtonClick(QAbstractButton*);
     void linkLabelClick(int index);
