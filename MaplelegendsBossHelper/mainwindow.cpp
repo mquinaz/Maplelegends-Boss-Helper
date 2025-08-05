@@ -258,17 +258,7 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
         get<3>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1]) = upperBoundTime;
         get<0>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1])->start(1000); //mudar * 60
 
-        qDebug() << bossIndex;
-        QString backupString = backupTimer[bossIndex.toInt() - 1].mid( backupTimer[bossIndex.toInt() - 1].indexOf(':') + 1, backupTimer[bossIndex.toInt() - 1].indexOf('\n'));
-        QString final = backupTimer[bossIndex.toInt() - 1].left( backupTimer[bossIndex.toInt() - 1].indexOf(':') + 1);
-        for(int i=1;i<ccIndex.toInt();i++)
-        {
-            qDebug() << final << "----" << backupString;
-            final += backupString.left( backupString.indexOf(',') + 1);
-            backupString = backupString.mid(backupString.indexOf(',') + 1, backupString.size());
-        }
-        backupString = backupString.mid(backupString.indexOf(',') + 1, backupString.size());
-        backupTimer[bossIndex.toInt() - 1] = final + boundTime.toString() + "," + backupString;
+        addTimerBackup(bossIndex.toInt() - 1, ccIndex.toInt() - 1, boundTime.toString());
         writeTimerBackup();
     }
 }
@@ -389,6 +379,19 @@ void MainWindow::changeDisplayTime()
                 labelTimer2->setText(timer2);
         }
     }
+}
+
+void MainWindow::addTimerBackup(int bossIndex, int ccIndex, QString time)
+{
+    QString backupString = backupTimer[bossIndex].mid( backupTimer[bossIndex].indexOf(':') + 1, backupTimer[bossIndex].indexOf('\n'));
+    QString final = backupTimer[bossIndex].left( backupTimer[bossIndex].indexOf(':') + 1);
+    for(int i=1;i<=ccIndex;i++)
+    {
+        final += backupString.left( backupString.indexOf(',') + 1);
+        backupString = backupString.mid(backupString.indexOf(',') + 1, backupString.size());
+    }
+    backupString = backupString.mid(backupString.indexOf(',') + 1, backupString.size());
+    backupTimer[bossIndex] = final + time + "," + backupString;
 }
 
 void MainWindow::writeTimerBackup()
