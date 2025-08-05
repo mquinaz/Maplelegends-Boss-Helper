@@ -18,6 +18,7 @@
 #include <QScrollBar>
 #include <QScrollArea>
 #include <QWidget>
+#include <QFile>
 
 #include "monster.h"
 
@@ -144,6 +145,35 @@ MainWindow::MainWindow(QWidget *parent)
         connect(listBossUI[i].groupBoss, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(timerButtonClick(QAbstractButton*)));
     }
 
+    file.setFileName(FILENAME);
+    if (file.exists())
+    {
+        file.open(QIODevice::ReadOnly);
+        QTextStream in(&file);
+
+        while (!in.atEnd())
+        {
+            QString line = in.readLine();
+            backupTimer.push_back(line);
+            //inicializar timers
+        }
+    }
+    else
+    {
+        file.open(QIODevice::ReadWrite);
+        QTextStream in( &file );
+        for(int i=0;i<(int) monsterList.size();i++)
+        {
+            QString line = QString::fromStdString(std::get<0>(monsterList[i])) + ":";
+            for(int i=0;i<numCC;i++)
+                line += ",";
+            line += "\n";
+            in << line;
+            backupTimer.push_back(line);
+        }
+    }
+    file.close();
+
     contentWidget->setMinimumSize(width, bossImagey + spaceBetweenBossesy * (numRow + 1));
     scrollArea->setWidget(contentWidget);
 }
@@ -227,6 +257,19 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
         get<2>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1]) = lowerBoundTime;
         get<3>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1]) = upperBoundTime;
         get<0>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1])->start(1000); //mudar * 60
+
+        qDebug() << bossIndex;
+        QString backupString = backupTimer[bossIndex.toInt() - 1].mid( backupTimer[bossIndex.toInt() - 1].indexOf(':') + 1, backupTimer[bossIndex.toInt() - 1].indexOf('\n'));
+        QString final = backupTimer[bossIndex.toInt() - 1].left( backupTimer[bossIndex.toInt() - 1].indexOf(':') + 1);
+        for(int i=1;i<ccIndex.toInt();i++)
+        {
+            qDebug() << final << "----" << backupString;
+            final += backupString.left( backupString.indexOf(',') + 1);
+            backupString = backupString.mid(backupString.indexOf(',') + 1, backupString.size());
+        }
+        backupString = backupString.mid(backupString.indexOf(',') + 1, backupString.size());
+        backupTimer[bossIndex.toInt() - 1] = final + boundTime.toString() + "," + backupString;
+        writeTimerBackup();
     }
 }
 
@@ -345,5 +388,20 @@ void MainWindow::changeDisplayTime()
             if(labelTimer2->text() != "")
                 labelTimer2->setText(timer2);
         }
+    }
+}
+
+void MainWindow::writeTimerBackup()
+{
+    if ( file.open(QIODevice::WriteOnly) )
+    {
+        QTextStream in( &file );
+
+        for(int i=0;i<(int) monsterList.size();i++)
+        {
+            in << backupTimer[i] + "\n";
+        }
+
+        file.close();
     }
 }

@@ -1,7 +1,8 @@
 #ifndef MONSTER_H
 #define MONSTER_H
 
-int numCC = 6;
+#define numCC 6
+#define FILENAME "time.txt"
 
 struct MonsterUI {
     QLabel *bossImage;
@@ -47,6 +48,7 @@ std::vector <std::tuple <std::string, int, std::string, bool> > monsterList =
     {"Snack Bar", 2 * 60, "https://maplelegends.com/lib/monster?id=9410015", true},
     {"Snowman", 3 * 60, "https://maplelegends.com/lib/monster?id=8220001", true},
     {"Spirit of Rock", 12 * 60, "https://maplelegends.com/lib/monster?id=9410035", true},
+    {"Stompy", 1 * 60, "https://maplelegends.com/lib/monster?id=3220000", true},
     {"Tae Roon", 3 * 60, "https://maplelegends.com/lib/monster?id=7220000", true},
     {"Timer", 2 * 60, "https://maplelegends.com/lib/monster?id=5220003", true},
     {"Zeno", 2 * 60, "https://maplelegends.com/lib/monster?id=6220001", true},

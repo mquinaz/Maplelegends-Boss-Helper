@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QAbstractButton>
 #include <QLabel>
+#include <QFile>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -18,6 +19,10 @@ public:
     ~MainWindow();
 
     bool displayTime;
+    QFile file;
+    QVector<QString> backupTimer;
+
+    void writeTimerBackup();
 public slots:
     void timerButtonClick(QAbstractButton*);
     void linkLabelClick(int index);

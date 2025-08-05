@@ -37,5 +37,6 @@
         <file>images/Bosses/Lyka.png</file>
         <file>images/timeChangeHover.png</file>
         <file>images/timeChange.png</file>
+        <file>images/Bosses/Stompy.png</file>
     </qresource>
 </RCC>
