@@ -18,7 +18,6 @@
 #include <QScrollBar>
 #include <QScrollArea>
 #include <QWidget>
-#include <QFile>
 
 #include "monster.h"
 
@@ -27,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    monster = new Monster();
 
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect  screenGeometry = screen->geometry();
@@ -71,36 +72,36 @@ MainWindow::MainWindow(QWidget *parent)
     buttonDisplayTimer->setGeometry(QRect(buttonDisplayx, buttonDisplayy, buttonDisplayDimensionx, buttonDisplayDimensiony));
     connect(buttonDisplayTimer, &QPushButton::clicked, this, [=]() { changeDisplayTime(); });
 
-    for(int i=0;i<(int) monsterList.size();i++)
+    for(int i=0;i< monster->monsterList.size();i++)
     {
         if(i != 0 && i % numBossesPerRow == 0)
             numRow++;
 
-        listBossUI.reserve(monsterList.size());
+        listBossUI.reserve(monster->monsterList.size());
         MonsterUI bossUI;
 
         bossUI.bossImage = new QLabel(contentWidget);
         bossUI.bossImage->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-        bossUI.bossImage->setStyleSheet("border-image: url(:/images/Bosses/" + QString::fromStdString(std::get<0>(monsterList[i])) + ".png) stretch;");
+        bossUI.bossImage->setStyleSheet("border-image: url(:/images/Bosses/" + std::get<0>(monster->monsterList[i]) + ".png) stretch;");
         bossUI.bossImage->setAlignment(Qt::AlignCenter);
         bossUI.bossImage->setGeometry(QRect(bossImagex + spaceBetweenBossesx * (i % numBossesPerRow),bossImagey + spaceBetweenBossesy * numRow,bossImageDimensionx,bossImageDimensiony));
 
         bossUI.bossName = new QPushButton(contentWidget);
         bossUI.bossName->setStyleSheet("QLabel { color : white; border: 0px;} QPushButton { background-color: #4caf50; color: white; outline: none;}");
-        bossUI.bossName->setText(QString::fromStdString(std::get<0>(monsterList[i])));
+        bossUI.bossName->setText(std::get<0>(monster->monsterList[i]));
         bossUI.bossName->setFont(font);
         bossUI.bossName->setGeometry(QRect(bossNamex + spaceBetweenBossesx * (i % numBossesPerRow),bossNamey + spaceBetweenBossesy * numRow,bossNameDimensionx,bossNameDimensiony));
         connect(bossUI.bossName, &QPushButton::clicked, this, [=]() { linkLabelClick(i); });
 
         bossUI.groupBoss = new QButtonGroup(contentWidget);
 
-        bossUI.bossCC.resize(numCC);
-        bossUI.timer1BossCC.resize(numCC);
-        bossUI.timer2BossCC.resize(numCC);
-        bossUI.button1BossCC.resize(numCC);
-        bossUI.button2BossCC.resize(numCC);
-        bossUI.timerList.resize(numCC);
-        for(int c = 0; c < numCC; c++)
+        bossUI.bossCC.resize(monster->numCC);
+        bossUI.timer1BossCC.resize(monster->numCC);
+        bossUI.timer2BossCC.resize(monster->numCC);
+        bossUI.button1BossCC.resize(monster->numCC);
+        bossUI.button2BossCC.resize(monster->numCC);
+        bossUI.timerList.resize(monster->numCC);
+        for(int c = 0; c < monster->numCC; c++)
         {
             bossUI.bossCC[c] = new QLabel(contentWidget);
             bossUI.bossCC[c]->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -145,34 +146,9 @@ MainWindow::MainWindow(QWidget *parent)
         connect(listBossUI[i].groupBoss, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(timerButtonClick(QAbstractButton*)));
     }
 
-    file.setFileName(FILENAME);
-    if (file.exists())
-    {
-        file.open(QIODevice::ReadOnly);
-        QTextStream in(&file);
-
-        while (!in.atEnd())
-        {
-            QString line = in.readLine();
-            backupTimer.push_back(line);
-            //inicializar timers
-        }
-    }
-    else
-    {
-        file.open(QIODevice::ReadWrite);
-        QTextStream in( &file );
-        for(int i=0;i<(int) monsterList.size();i++)
-        {
-            QString line = QString::fromStdString(std::get<0>(monsterList[i])) + ":";
-            for(int i=0;i<numCC;i++)
-                line += ",";
-            line += "\n";
-            in << line;
-            backupTimer.push_back(line);
-        }
-    }
-    file.close();
+    file = new Backup(monster->numCC, monster->monsterList);
+    for(auto it : file->backupTimerToProcess)
+        activateTimer(get<0>(it), get<1>(it), get<2>(it));
 
     contentWidget->setMinimumSize(width, bossImagey + spaceBetweenBossesy * (numRow + 1));
     scrollArea->setWidget(contentWidget);
@@ -189,14 +165,15 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
     QString buttonName = button->objectName();
     int buttonBossIndex = buttonName.lastIndexOf('s');
     int buttonCCIndex = buttonName.lastIndexOf('C');
-    QString bossIndex = buttonName.mid(buttonBossIndex + 1, buttonCCIndex - buttonBossIndex - 2);
-    QString ccIndex = buttonName.mid(buttonCCIndex + 1, buttonName.size());
+
+    int bossIndex = buttonName.mid(buttonBossIndex + 1, buttonCCIndex - buttonBossIndex - 2).toInt() - 1;
+    int ccIndex = buttonName.mid(buttonCCIndex + 1, buttonName.size()).toInt() - 1;
     qDebug() << buttonName;
 
 
     if(buttonName.left(7) == "button2")
     {
-        QString descriptionString = "Are you sure you want to reset\nthe timer on boss " +  QString::fromStdString(std::get<0>(monsterList[bossIndex.toInt() - 1])) + " CC" + ccIndex + "?";
+        QString descriptionString = "Are you sure you want to reset\nthe timer on boss " +  std::get<0>(monster->monsterList[bossIndex]) + " CC" + QString::number(ccIndex + 1) + "?";
 
         switch( QMessageBox::question(
             this,
@@ -211,15 +188,15 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
         case QMessageBox::Yes:
             qDebug( "yes" );
 
-            get<0>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1])->stop();
+            get<0>(listBossUI[bossIndex].timerList[ccIndex])->stop();
 
-            this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122);");
-            this->findChild<QLabel *>("timer2Boss" + bossIndex + "CC" + ccIndex)->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122);");
-            this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setText("");
-            this->findChild<QLabel *>("timer2Boss" + bossIndex + "CC" + ccIndex)->setText("");
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122);");
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122);");
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText("");
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText("");
 
-            formatTimerBackup(bossIndex.toInt() - 1, ccIndex.toInt() - 1);
-            writeTimerBackup();
+            file->formatTimerBackup(bossIndex, ccIndex);
+            file->writeTimerBackup(monster->monsterList.size());
 
             break;
         case QMessageBox::Cancel:
@@ -230,47 +207,94 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
             break;
         }
     }
-    else if(buttonName.left(7) == "button1" && !get<0>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1])->isActive())
+    else if(buttonName.left(7) == "button1" && !get<0>(listBossUI[bossIndex].timerList[ccIndex])->isActive())
     {
-        qDebug() << "Entered";
         QDateTime boundTime = QDateTime::currentDateTime();
-        QDateTime lowerBoundTime = boundTime;
-        QDateTime upperBoundTime = boundTime;
 
-        lowerBoundTime = lowerBoundTime.addSecs(std::get<1>(monsterList[bossIndex.toInt() - 1]) * 0.9 * 60);
-        upperBoundTime = upperBoundTime.addSecs(std::get<1>(monsterList[bossIndex.toInt() - 1]) * 1.1 * 60);
+        activateTimer(boundTime, bossIndex, ccIndex);
 
-        QString timer1, timer2;
-        if(displayTime)
-        {
-            timer1 = lowerBoundTime.toString("hh:mm");
-            timer2 = upperBoundTime.toString("hh:mm");
-        }
-        else
-        {
-            int boundTimeSeconds = QDateTime(boundTime.date() ,QTime(0,0)).secsTo(boundTime);
-            timer1 = lowerBoundTime.addSecs(-boundTimeSeconds).toString("hh:mm");
-            timer2 = upperBoundTime.addSecs(-boundTimeSeconds).toString("hh:mm");
-        }
-
-        this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
-        this->findChild<QLabel *>("timer2Boss" + bossIndex + "CC" + ccIndex)->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
-        this->findChild<QLabel *>("timer1Boss" + bossIndex + "CC" + ccIndex)->setText(timer1);
-        this->findChild<QLabel *>("timer2Boss" + bossIndex + "CC" + ccIndex)->setText(timer2);
-
-        get<1>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1]) = boundTime;
-        get<2>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1]) = lowerBoundTime;
-        get<3>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1]) = upperBoundTime;
-        get<0>(listBossUI[bossIndex.toInt() - 1].timerList[ccIndex.toInt() - 1])->start(1000); //mudar * 60
-
-        formatTimerBackup(bossIndex.toInt() - 1, ccIndex.toInt() - 1, boundTime.toString());
-        writeTimerBackup();
+        file->formatTimerBackup(bossIndex, ccIndex, boundTime.toString());
+        file->writeTimerBackup(monster->monsterList.size());
     }
 }
 
 void MainWindow::linkLabelClick(int index)
 {
-    QDesktopServices::openUrl( QUrl( QString::fromStdString( std::get<2>(monsterList[index]))));
+    QDesktopServices::openUrl( QUrl( std::get<2>(monster->monsterList[index])));
+}
+
+void MainWindow::activateTimer(QDateTime boundTime, int bossIndex, int ccIndex)
+{
+    QDateTime lowerBoundTime = boundTime;
+    QDateTime upperBoundTime = boundTime;
+
+    lowerBoundTime = lowerBoundTime.addSecs(std::get<1>(monster->monsterList[bossIndex]) * 0.9 * 60);
+    upperBoundTime = upperBoundTime.addSecs(std::get<1>(monster->monsterList[bossIndex]) * 1.1 * 60);
+
+    QDateTime curTime = QDateTime::currentDateTime();
+
+    if(displayTime)
+    {
+        qDebug() << curTime.secsTo(lowerBoundTime);
+        if(curTime.secsTo(lowerBoundTime) > 0)
+        {
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText(lowerBoundTime.toString("hh:mm"));
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
+        }
+        else
+        {
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText("");
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+        }
+
+        qDebug() << curTime.secsTo(upperBoundTime);
+        if(curTime.secsTo(upperBoundTime) > 0)
+        {
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText(upperBoundTime.toString("hh:mm"));
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
+
+            get<1>(listBossUI[bossIndex].timerList[ccIndex]) = boundTime;
+            get<2>(listBossUI[bossIndex].timerList[ccIndex]) = lowerBoundTime;
+            get<3>(listBossUI[bossIndex].timerList[ccIndex]) = upperBoundTime;
+            get<0>(listBossUI[bossIndex].timerList[ccIndex])->start(1000); //mudar * 60
+        }
+        else
+        {
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText("");
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+            get<0>(listBossUI[bossIndex].timerList[ccIndex])->stop();
+        }
+    }
+    else
+    {
+        int boundTimeSeconds = QDateTime(boundTime.date() ,QTime(0,0)).secsTo(boundTime);
+        if(curTime.secsTo(lowerBoundTime) > 0)
+        {
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText(lowerBoundTime.addSecs(-boundTimeSeconds).toString("hh:mm"));
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
+        }
+        else
+        {
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText("");
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+        }
+
+        if(curTime.secsTo(upperBoundTime) > 0)
+        {
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText(upperBoundTime.addSecs(-boundTimeSeconds).toString("hh:mm"));
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
+            get<1>(listBossUI[bossIndex].timerList[ccIndex]) = boundTime;
+            get<2>(listBossUI[bossIndex].timerList[ccIndex]) = lowerBoundTime;
+            get<3>(listBossUI[bossIndex].timerList[ccIndex]) = upperBoundTime;
+            get<0>(listBossUI[bossIndex].timerList[ccIndex])->start(1000); //mudar * 60
+        }
+        else
+        {
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText("");
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+            get<0>(listBossUI[bossIndex].timerList[ccIndex])->stop();
+        }
+    }
 }
 
 void MainWindow::timerUpdate(QLabel *labelTimer1, QLabel *labelTimer2, int bossIndex, int ccIndex)
@@ -357,9 +381,9 @@ void MainWindow::changeDisplayTime()
 {
     displayTime = !displayTime;
 
-    for(int i=0;i<(int) monsterList.size();i++)
+    for(int i=0;i< monster->monsterList.size();i++)
     {
-        for(int c = 0; c < numCC; c++)
+        for(int c = 0; c < monster->numCC; c++)
         {
             QString timer1, timer2;
             if(displayTime)
@@ -375,41 +399,11 @@ void MainWindow::changeDisplayTime()
                 timer2 = QDateTime(get<1>(listBossUI[i].timerList[c]).date() ,QTime(0,0)).addSecs(differenceTimers2).toString("hh:mm");
             }
 
-            QLabel *labelTimer1 = this->findChild<QLabel *>("timer1Boss" + QString::number(i + 1) + "CC" + QString::number(c + 1));
-            QLabel *labelTimer2 = this->findChild<QLabel *>("timer2Boss" + QString::number(i + 1) + "CC" + QString::number(c + 1));
-
-            if(labelTimer1->text() != "")
-                labelTimer1->setText(timer1);
-            if(labelTimer2->text() != "")
-                labelTimer2->setText(timer2);
+            if(listBossUI[i].timer1BossCC[c]->text() != "")
+                listBossUI[i].timer1BossCC[c]->setText(timer1);
+            if(listBossUI[i].timer2BossCC[c]->text() != "")
+                listBossUI[i].timer2BossCC[c]->setText(timer2);
         }
     }
 }
 
-void MainWindow::formatTimerBackup(int bossIndex, int ccIndex, QString time)
-{
-    QString backupString = backupTimer[bossIndex].mid( backupTimer[bossIndex].indexOf(':') + 1, backupTimer[bossIndex].indexOf('\n'));
-    QString final = backupTimer[bossIndex].left( backupTimer[bossIndex].indexOf(':') + 1);
-    for(int i=1;i<=ccIndex;i++)
-    {
-        final += backupString.left( backupString.indexOf(',') + 1);
-        backupString = backupString.mid(backupString.indexOf(',') + 1, backupString.size());
-    }
-    backupString = backupString.mid(backupString.indexOf(',') + 1, backupString.size());
-    backupTimer[bossIndex] = final + time + "," + backupString;
-}
-
-void MainWindow::writeTimerBackup()
-{
-    if ( file.open(QIODevice::WriteOnly) )
-    {
-        QTextStream in( &file );
-
-        for(int i=0;i<(int) monsterList.size();i++)
-        {
-            in << backupTimer[i] + "\n";
-        }
-
-        file.close();
-    }
-}

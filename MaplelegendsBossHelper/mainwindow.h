@@ -5,6 +5,10 @@
 #include <QAbstractButton>
 #include <QLabel>
 #include <QFile>
+#include <QPushButton>
+
+#include "backup.h"
+#include "monster.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -14,16 +18,26 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+struct MonsterUI {
+    QLabel *bossImage;
+    QPushButton *bossName;
+    QVector<QLabel *> bossCC;
+    QVector<QLabel *> timer1BossCC;
+    QVector<QLabel *> timer2BossCC;
+    QVector<QPushButton *> button1BossCC;
+    QVector<QPushButton *> button2BossCC;
+    QButtonGroup* groupBoss;
+    QVector<std::tuple<QTimer *, QDateTime, QDateTime, QDateTime>> timerList;
+};
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
     bool displayTime;
-    QFile file;
-    QVector<QString> backupTimer;
 
-    void writeTimerBackup();
-    void formatTimerBackup(int bossIndex, int ccIndex, QString time = "");
+    void activateTimer(QDateTime boundTime, int bossIndex, int ccIndex);
+
 public slots:
     void timerButtonClick(QAbstractButton*);
     void linkLabelClick(int index);
@@ -32,6 +46,9 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+    Backup *file;
+    Monster *monster;
+    QVector<MonsterUI> listBossUI;
 
 };
 #endif // MAINWINDOW_H
