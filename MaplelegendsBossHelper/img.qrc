@@ -38,5 +38,7 @@
         <file>images/timeChangeHover.png</file>
         <file>images/timeChange.png</file>
         <file>images/Bosses/Stompy.png</file>
+        <file>images/Bosses/Headless Horseman.png</file>
+        <file>images/Bosses/Bigfoot.png</file>
     </qresource>
 </RCC>

@@ -9,7 +9,7 @@ public:
     QFile file;
     QString filename = "time.txt";
     QVector<QString> backupTimer;
-    QVector< std::tuple<QDateTime, int, int>> backupTimerToProcess;
+    QVector< std::tuple<QDateTime, QDateTime, QDateTime, int, int>> backupTimerToProcess;
 
     void writeTimerBackup(int monsterListSize);
     void formatTimerBackup(int bossIndex, int ccIndex, QString time = "");

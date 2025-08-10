@@ -38,9 +38,10 @@ MainWindow::MainWindow(QWidget *parent)
     displayTime = true;
 
     QFont font("Courier New", 16, QFont::Bold);
+    QFontMetrics fm(font);
     int buttonDisplayx = width - 75, buttonDisplayy = 25, buttonDisplayDimensionx = 50, buttonDisplayDimensiony = 50;
     int bossImagex = 75, bossImagey = 50, bossImageDimensionx = 150, bossImageDimensiony = 150;
-    int bossNamex = 75, bossNamey = 25, bossNameDimensionx = 175, bossNameDimensiony = 30;
+    int bossNamex = 75, bossNamey = 25, bossNameDimensionx = 25, bossNameDimensiony = 30;
     int bossx = 50, bossy = 200, bossDimensionx = 50, bossDimensiony = 30;
     int spaceBetweenBossy = 30;
     int timerBossx = 100, timerBossy = 200, timerBossDimensionx = 50, timerBossDimensiony = 30;
@@ -90,7 +91,8 @@ MainWindow::MainWindow(QWidget *parent)
         bossUI.bossName->setStyleSheet("QLabel { color : white; border: 0px;} QPushButton { background-color: #4caf50; color: white; outline: none;}");
         bossUI.bossName->setText(std::get<0>(monster->monsterList[i]));
         bossUI.bossName->setFont(font);
-        bossUI.bossName->setGeometry(QRect(bossNamex + spaceBetweenBossesx * (i % numBossesPerRow),bossNamey + spaceBetweenBossesy * numRow,bossNameDimensionx,bossNameDimensiony));
+        int widthNameBoss = fm.horizontalAdvance(std::get<0>(monster->monsterList[i]));
+        bossUI.bossName->setGeometry(QRect(bossNamex + spaceBetweenBossesx * (i % numBossesPerRow),bossNamey + spaceBetweenBossesy * numRow,widthNameBoss + bossNameDimensionx,bossNameDimensiony));
         connect(bossUI.bossName, &QPushButton::clicked, this, [=]() { linkLabelClick(i); });
 
         bossUI.groupBoss = new QButtonGroup(contentWidget);
@@ -140,15 +142,15 @@ MainWindow::MainWindow(QWidget *parent)
             bossUI.groupBoss->addButton(bossUI.button2BossCC[c]);
 
             bossUI.timerList[c] = std::make_tuple(new QTimer(this), QDateTime(), QDateTime(), QDateTime());
-            connect(get<0>(bossUI.timerList[c]), &QTimer::timeout, this, [=]() { timerUpdate(bossUI.timer1BossCC[c], bossUI.timer2BossCC[c], i, c); });
+            connect(get<0>(bossUI.timerList[c]), &QTimer::timeout, this, [=]() { timerUpdate(i, c); });
         }
         listBossUI.push_back(bossUI);
         connect(listBossUI[i].groupBoss, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(timerButtonClick(QAbstractButton*)));
     }
 
     file = new Backup(monster->numCC, monster->monsterList);
-    for(auto it : file->backupTimerToProcess)
-        activateTimer(get<0>(it), get<1>(it), get<2>(it));
+    for(const auto it : file->backupTimerToProcess)
+        processTimer(get<0>(it), get<1>(it), get<2>(it), get<3>(it), get<4>(it));
 
     contentWidget->setMinimumSize(width, bossImagey + spaceBetweenBossesy * (numRow + 1));
     scrollArea->setWidget(contentWidget);
@@ -210,8 +212,17 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
     else if(buttonName.left(7) == "button1" && !get<0>(listBossUI[bossIndex].timerList[ccIndex])->isActive())
     {
         QDateTime boundTime = QDateTime::currentDateTime();
+        int timerValue = std::get<1>(monster->monsterList[bossIndex]);
+        QDateTime lowerBoundTime = boundTime.addSecs(timerValue * 0.9 * 60);
+        QDateTime upperBoundTime = boundTime.addSecs(timerValue * 1.1 * 60);
 
-        activateTimer(boundTime, bossIndex, ccIndex);
+        get<1>(listBossUI[bossIndex].timerList[ccIndex]) = boundTime;
+        get<2>(listBossUI[bossIndex].timerList[ccIndex]) = lowerBoundTime;
+        get<3>(listBossUI[bossIndex].timerList[ccIndex]) = upperBoundTime;
+
+        processTimer(boundTime, lowerBoundTime, upperBoundTime, bossIndex, ccIndex);
+
+        get<0>(listBossUI[bossIndex].timerList[ccIndex])->start(1000);
 
         file->formatTimerBackup(bossIndex, ccIndex, boundTime.toString());
         file->writeTimerBackup(monster->monsterList.size());
@@ -223,158 +234,11 @@ void MainWindow::linkLabelClick(int index)
     QDesktopServices::openUrl( QUrl( std::get<2>(monster->monsterList[index])));
 }
 
-void MainWindow::activateTimer(QDateTime boundTime, int bossIndex, int ccIndex)
+void MainWindow::timerUpdate(int bossIndex, int ccIndex)
 {
-    QDateTime lowerBoundTime = boundTime;
-    QDateTime upperBoundTime = boundTime;
+    get<1>(listBossUI[bossIndex].timerList[ccIndex]) = get<1>(listBossUI[bossIndex].timerList[ccIndex]).addSecs(1 * 60);
 
-    lowerBoundTime = lowerBoundTime.addSecs(std::get<1>(monster->monsterList[bossIndex]) * 0.9 * 60);
-    upperBoundTime = upperBoundTime.addSecs(std::get<1>(monster->monsterList[bossIndex]) * 1.1 * 60);
-
-    QDateTime curTime = QDateTime::currentDateTime();
-
-    if(displayTime)
-    {
-        qDebug() << curTime.secsTo(lowerBoundTime);
-        if(curTime.secsTo(lowerBoundTime) > 0)
-        {
-            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText(lowerBoundTime.toString("hh:mm"));
-            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
-        }
-        else
-        {
-            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText("");
-            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
-        }
-
-        qDebug() << curTime.secsTo(upperBoundTime);
-        if(curTime.secsTo(upperBoundTime) > 0)
-        {
-            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText(upperBoundTime.toString("hh:mm"));
-            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
-
-            get<1>(listBossUI[bossIndex].timerList[ccIndex]) = boundTime;
-            get<2>(listBossUI[bossIndex].timerList[ccIndex]) = lowerBoundTime;
-            get<3>(listBossUI[bossIndex].timerList[ccIndex]) = upperBoundTime;
-            get<0>(listBossUI[bossIndex].timerList[ccIndex])->start(1000); //mudar * 60
-        }
-        else
-        {
-            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText("");
-            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
-            get<0>(listBossUI[bossIndex].timerList[ccIndex])->stop();
-        }
-    }
-    else
-    {
-        int boundTimeSeconds = QDateTime(boundTime.date() ,QTime(0,0)).secsTo(boundTime);
-        if(curTime.secsTo(lowerBoundTime) > 0)
-        {
-            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText(lowerBoundTime.addSecs(-boundTimeSeconds).toString("hh:mm"));
-            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
-        }
-        else
-        {
-            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText("");
-            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
-        }
-
-        if(curTime.secsTo(upperBoundTime) > 0)
-        {
-            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText(upperBoundTime.addSecs(-boundTimeSeconds).toString("hh:mm"));
-            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
-            get<1>(listBossUI[bossIndex].timerList[ccIndex]) = boundTime;
-            get<2>(listBossUI[bossIndex].timerList[ccIndex]) = lowerBoundTime;
-            get<3>(listBossUI[bossIndex].timerList[ccIndex]) = upperBoundTime;
-            get<0>(listBossUI[bossIndex].timerList[ccIndex])->start(1000); //mudar * 60
-        }
-        else
-        {
-            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText("");
-            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
-            get<0>(listBossUI[bossIndex].timerList[ccIndex])->stop();
-        }
-    }
-}
-
-void MainWindow::timerUpdate(QLabel *labelTimer1, QLabel *labelTimer2, int bossIndex, int ccIndex)
-{
-    if(displayTime)
-    {
-        get<1>(listBossUI[bossIndex].timerList[ccIndex]) = get<1>(listBossUI[bossIndex].timerList[ccIndex]).addSecs(1 * 60);
-
-        qDebug() << get<1>(listBossUI[bossIndex].timerList[ccIndex]).toString("hh:mm");
-        qDebug() << get<2>(listBossUI[bossIndex].timerList[ccIndex]).toString("hh:mm");
-        qDebug() << get<3>(listBossUI[bossIndex].timerList[ccIndex]).toString("hh:mm");
-
-        if(labelTimer1->text() != "")
-        {
-            int differenceTimers1 = get<1>(listBossUI[bossIndex].timerList[ccIndex]).secsTo( get<2>(listBossUI[bossIndex].timerList[ccIndex]));
-            qDebug() << differenceTimers1;
-            if(differenceTimers1 > 0)
-            {
-                QString timer1 = get<2>(listBossUI[bossIndex].timerList[ccIndex]).toString("hh:mm");
-                labelTimer1->setText(timer1);
-            }
-            else if(differenceTimers1 <= 0)
-            {
-                labelTimer1->setText("");
-                labelTimer1->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
-            }
-        }
-
-        int differenceTimers2 = get<1>(listBossUI[bossIndex].timerList[ccIndex]).secsTo( get<3>(listBossUI[bossIndex].timerList[ccIndex]));
-        qDebug() << differenceTimers2;
-        if(differenceTimers2 > 0)
-        {
-            QString timer2 = get<3>(listBossUI[bossIndex].timerList[ccIndex]).toString("hh:mm");
-            labelTimer2->setText(timer2);
-        }
-        else if(differenceTimers2 <= 0)
-        {
-            labelTimer2->setText("");
-            labelTimer2->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
-            get<0>(listBossUI[bossIndex].timerList[ccIndex])->stop();
-        }
-    }
-    else
-    {
-        get<1>(listBossUI[bossIndex].timerList[ccIndex]) = get<1>(listBossUI[bossIndex].timerList[ccIndex]).addSecs(1 * 60);
-
-        qDebug() << get<1>(listBossUI[bossIndex].timerList[ccIndex]).toString("hh:mm");
-        qDebug() << get<2>(listBossUI[bossIndex].timerList[ccIndex]).toString("hh:mm");
-        qDebug() << get<3>(listBossUI[bossIndex].timerList[ccIndex]).toString("hh:mm");
-
-        if(labelTimer1->text() != "")
-        {
-            int differenceTimers1 = get<1>(listBossUI[bossIndex].timerList[ccIndex]).secsTo( get<2>(listBossUI[bossIndex].timerList[ccIndex]));
-            qDebug() << differenceTimers1;
-            if(differenceTimers1 > 0)
-            {
-                QString timer1 = QDateTime(get<1>(listBossUI[bossIndex].timerList[ccIndex]).date() ,QTime(0,0)).addSecs(differenceTimers1).toString("hh:mm");
-                labelTimer1->setText(timer1);
-            }
-            else if(differenceTimers1 <= 0)
-            {
-                labelTimer1->setText("");
-                labelTimer1->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
-            }
-        }
-
-        int differenceTimers2 = get<1>(listBossUI[bossIndex].timerList[ccIndex]).secsTo( get<3>(listBossUI[bossIndex].timerList[ccIndex]));
-        qDebug() << differenceTimers2;
-        if(differenceTimers2 > 0)
-        {
-            QString timer2 = QDateTime(get<1>(listBossUI[bossIndex].timerList[ccIndex]).date() ,QTime(0,0)).addSecs(differenceTimers2).toString("hh:mm");
-            labelTimer2->setText(timer2);
-        }
-        else if(differenceTimers2 <= 0)
-        {
-            labelTimer2->setText("");
-            labelTimer2->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
-            get<0>(listBossUI[bossIndex].timerList[ccIndex])->stop();
-        }
-    }
+    processTimer(get<1>(listBossUI[bossIndex].timerList[ccIndex]), get<2>(listBossUI[bossIndex].timerList[ccIndex]), get<3>(listBossUI[bossIndex].timerList[ccIndex]), bossIndex, ccIndex);
 }
 
 void MainWindow::changeDisplayTime()
@@ -407,3 +271,79 @@ void MainWindow::changeDisplayTime()
     }
 }
 
+void MainWindow::processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDateTime upperBoundTime, int bossIndex, int ccIndex)
+{
+    QDateTime curTime = QDateTime::currentDateTime();
+
+    if(!displayTime)
+    {
+        qDebug() << boundTime.toString();
+        qDebug() << curTime.secsTo(lowerBoundTime);
+        if(curTime.secsTo(lowerBoundTime) > 0)
+        {
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText(lowerBoundTime.toString("hh:mm"));
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
+        }
+        else
+        {
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText("");
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+        }
+
+        qDebug() << curTime.secsTo(upperBoundTime);
+        if(curTime.secsTo(upperBoundTime) > 0)
+        {
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText(upperBoundTime.toString("hh:mm"));
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
+
+            get<1>(listBossUI[bossIndex].timerList[ccIndex]) = boundTime;
+            get<2>(listBossUI[bossIndex].timerList[ccIndex]) = lowerBoundTime;
+            get<3>(listBossUI[bossIndex].timerList[ccIndex]) = upperBoundTime;
+            if(!get<0>(listBossUI[bossIndex].timerList[ccIndex])->isActive())
+                get<0>(listBossUI[bossIndex].timerList[ccIndex])->start(1000); //mudar * 60
+        }
+        else
+        {
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText("");
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+            get<0>(listBossUI[bossIndex].timerList[ccIndex])->stop();
+        }
+    }
+    else
+    {
+        int differenceTimers1 = curTime.secsTo( lowerBoundTime);
+        if(differenceTimers1 > 0)
+        {
+            QString timer1 = QDateTime(curTime.date() ,QTime(0,0)).addSecs(differenceTimers1).toString("hh:mm");
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText(timer1);
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
+        }
+        else
+        {
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText("");
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+        }
+
+        int differenceTimers2 = curTime.secsTo( upperBoundTime);
+        qDebug() << get<0>(listBossUI[bossIndex].timerList[ccIndex])->isActive();
+        if(differenceTimers2> 0)
+        {
+            QString timer2 = QDateTime(curTime.date() ,QTime(0,0)).addSecs(differenceTimers2).toString("hh:mm");
+
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText(timer2);
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
+
+            get<1>(listBossUI[bossIndex].timerList[ccIndex]) = boundTime;
+            get<2>(listBossUI[bossIndex].timerList[ccIndex]) = lowerBoundTime;
+            get<3>(listBossUI[bossIndex].timerList[ccIndex]) = upperBoundTime;
+            if(!get<0>(listBossUI[bossIndex].timerList[ccIndex])->isActive())
+                get<0>(listBossUI[bossIndex].timerList[ccIndex])->start(1000); //mudar * 60
+        }
+        else
+        {
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText("");
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+            get<0>(listBossUI[bossIndex].timerList[ccIndex])->stop();
+        }
+    }
+}

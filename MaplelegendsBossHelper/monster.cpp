@@ -13,6 +13,7 @@ Monster::Monster()
     //Name, spawn time, link, showOnScreen
     monsterList =
         {
+            {"Bigfoot", 10, "https://maplelegends.com/lib/monster?id=9400575", true},
             {"Black Crow", 23 * 60, "https://maplelegends.com/lib/monster?id=9400014", true},
             {"Blue Mushmom", 4 * 60, "https://maplelegends.com/lib/monster?id=9400205", true},
             {"Deo", 60, "https://maplelegends.com/lib/monster?id=3220001", true},
@@ -22,6 +23,7 @@ Monster::Monster()
             {"Faust", 2 * 60, "https://maplelegends.com/lib/monster?id=5220002", true},
             {"Female Boss", 8 * 60, "https://maplelegends.com/lib/monster?id=9400121", true},
             {"Griffey", 1 * 60 + 30, "https://maplelegends.com/lib/monster?id=8180001", true},
+            {"Headless Horseman", 10, "https://maplelegends.com/lib/monster?id=9400549", true},
             {"Jr. Balrog", 3 * 60, "https://maplelegends.com/lib/monster?id=8130100", true},
             {"Kacchuu Musha", 11 * 60, "https://maplelegends.com/lib/monster?id=9400405", true},
             {"Kimera", 3 * 60, "https://maplelegends.com/lib/monster?id=8220002", true},

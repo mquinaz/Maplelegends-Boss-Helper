@@ -26,7 +26,11 @@ Backup::Backup(int numCC, QVector<std::tuple <QString, int, QString, bool> > &mo
 
                 if(lineCC != "")
                 {
-                    backupTimerToProcess.push_back({QDateTime::fromString(lineCC), bossIndex, c});
+                    QDateTime boundTime = QDateTime::fromString(lineCC);
+                    int timerValue = std::get<1>(monsterList[bossIndex]);
+                    QDateTime lowerBoundTime = boundTime.addSecs(timerValue * 0.9 * 60);
+                    QDateTime upperBoundTime = boundTime.addSecs(timerValue * 1.1 * 60);
+                    backupTimerToProcess.push_back({boundTime, lowerBoundTime, upperBoundTime, bossIndex, c});
                 }
             }
 

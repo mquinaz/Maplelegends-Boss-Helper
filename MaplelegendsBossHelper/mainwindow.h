@@ -36,13 +36,13 @@ public:
 
     bool displayTime;
 
-    void activateTimer(QDateTime boundTime, int bossIndex, int ccIndex);
+    void processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDateTime upperBoundTime, int bossIndex, int ccIndex);
 
 public slots:
     void timerButtonClick(QAbstractButton*);
     void linkLabelClick(int index);
     void changeDisplayTime();
-    void timerUpdate(QLabel *labelTimer1, QLabel *labelTimer2, int bossIndex, int ccIndex);
+    void timerUpdate(int bossIndex, int ccIndex);
 
 private:
     Ui::MainWindow *ui;
