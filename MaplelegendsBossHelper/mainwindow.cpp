@@ -83,6 +83,8 @@ MainWindow::MainWindow(QWidget *parent)
         listBossUI.reserve(monster->monsterList.size());
         MonsterUI bossUI;
 
+        bossUI.mapMonster.push_back(0);
+
         bossUI.bossImage = new QLabel(contentWidget);
         bossUI.bossImage->setFrameStyle(QFrame::Panel | QFrame::Sunken);
         bossUI.bossImage->setStyleSheet("border-image: url(:/images/Bosses/" + std::get<0>(monster->monsterList[i]) + ".png) stretch;");
@@ -90,11 +92,14 @@ MainWindow::MainWindow(QWidget *parent)
         bossUI.bossImage->setGeometry(QRect(bossImagex + spaceBetweenBossesx * (i % numBossesPerRow),bossImagey + spaceBetweenBossesy * numRow,bossImageDimensionx,bossImageDimensiony));
 
         QStringList commands = std::get<2>(monster->monsterList[i]);
-        QComboBox* combo = new QComboBox(this);
+        QComboBox* combo = new QComboBox(contentWidget);
         combo->addItems(commands);
         combo->setGeometry(QRect(bossCombox + spaceBetweenBossesx * (i % numBossesPerRow),bossComboy + spaceBetweenBossesy * numRow, bossComboDimensionx, bossComboDimensiony));
-        //combo->setStyleSheet("QAbstractItemView { border: 2px solid darkgray; selection-background-color: lightgray;}");
-        connect( combo, &QComboBox::currentTextChanged, this, &MainWindow::changeMap);
+        combo->setStyleSheet(
+            "QComboBox { background-color: white; color: black; }"
+            "QComboBox QAbstractItemView { background-color: white; color: black; }"
+            );
+        connect( combo, &QComboBox::currentTextChanged, this, [=](const QString &text) { changeMap(text, i); });
 
         bossUI.bossName = new QPushButton(contentWidget);
         bossUI.bossName->setStyleSheet("QLabel { color : white; border: 0px;} QPushButton { background-color: #4caf50; color: white; outline: none;}");
@@ -250,9 +255,11 @@ void MainWindow::timerUpdate(int bossIndex, int ccIndex)
     processTimer(get<1>(listBossUI[bossIndex].timerList[ccIndex]), get<2>(listBossUI[bossIndex].timerList[ccIndex]), get<3>(listBossUI[bossIndex].timerList[ccIndex]), bossIndex, ccIndex);
 }
 
-void MainWindow::changeMap(const QString& map)
+void MainWindow::changeMap(const QString& map, int bossIndex)
 {
     qDebug() << "changeMap: " << map;
+
+    qDebug() << std::get<2>(monster->monsterList[bossIndex]).indexOf(map);
 }
 
 void MainWindow::changeDisplayTime()
