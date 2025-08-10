@@ -8,7 +8,8 @@ public:
 
     int numCC;
 
-    QVector<std::tuple <QString, int, QString, bool> > monsterList;
+    //Name, spawn time, spawn maps, link, listMapsshowOnScreen
+    QVector<std::tuple <QString, QList<int>, QStringList, QString, bool> > monsterList;
 };
 
 #endif // MONSTER_H

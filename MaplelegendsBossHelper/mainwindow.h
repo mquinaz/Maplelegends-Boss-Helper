@@ -43,6 +43,7 @@ public slots:
     void linkLabelClick(int index);
     void changeDisplayTime();
     void timerUpdate(int bossIndex, int ccIndex);
+    void changeMap(const QString& map);
 
 private:
     Ui::MainWindow *ui;

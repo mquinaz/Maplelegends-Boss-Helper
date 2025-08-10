@@ -4,7 +4,7 @@
 class Backup
 {
 public:
-    Backup(int numCC, QVector<std::tuple <QString, int, QString, bool> > &monsterList);
+    Backup(int numCC, QVector<std::tuple <QString, QList<int>, QStringList, QString, bool> > &monsterList);
 
     QFile file;
     QString filename = "time.txt";

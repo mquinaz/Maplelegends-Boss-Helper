@@ -18,6 +18,7 @@
 #include <QScrollBar>
 #include <QScrollArea>
 #include <QWidget>
+#include <QComboBox>
 
 #include "monster.h"
 
@@ -41,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
     QFontMetrics fm(font);
     int buttonDisplayx = width - 75, buttonDisplayy = 25, buttonDisplayDimensionx = 50, buttonDisplayDimensiony = 50;
     int bossImagex = 75, bossImagey = 50, bossImageDimensionx = 150, bossImageDimensiony = 150;
+    int bossCombox = 200, bossComboy = 50, bossComboDimensionx = 20, bossComboDimensiony = 20;
     int bossNamex = 75, bossNamey = 25, bossNameDimensionx = 25, bossNameDimensiony = 30;
     int bossx = 50, bossy = 200, bossDimensionx = 50, bossDimensiony = 30;
     int spaceBetweenBossy = 30;
@@ -86,6 +88,13 @@ MainWindow::MainWindow(QWidget *parent)
         bossUI.bossImage->setStyleSheet("border-image: url(:/images/Bosses/" + std::get<0>(monster->monsterList[i]) + ".png) stretch;");
         bossUI.bossImage->setAlignment(Qt::AlignCenter);
         bossUI.bossImage->setGeometry(QRect(bossImagex + spaceBetweenBossesx * (i % numBossesPerRow),bossImagey + spaceBetweenBossesy * numRow,bossImageDimensionx,bossImageDimensiony));
+
+        QStringList commands = std::get<2>(monster->monsterList[i]);
+        QComboBox* combo = new QComboBox(this);
+        combo->addItems(commands);
+        combo->setGeometry(QRect(bossCombox + spaceBetweenBossesx * (i % numBossesPerRow),bossComboy + spaceBetweenBossesy * numRow, bossComboDimensionx, bossComboDimensiony));
+        //combo->setStyleSheet("QAbstractItemView { border: 2px solid darkgray; selection-background-color: lightgray;}");
+        connect( combo, &QComboBox::currentTextChanged, this, &MainWindow::changeMap);
 
         bossUI.bossName = new QPushButton(contentWidget);
         bossUI.bossName->setStyleSheet("QLabel { color : white; border: 0px;} QPushButton { background-color: #4caf50; color: white; outline: none;}");
@@ -212,7 +221,7 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
     else if(buttonName.left(7) == "button1" && !get<0>(listBossUI[bossIndex].timerList[ccIndex])->isActive())
     {
         QDateTime boundTime = QDateTime::currentDateTime();
-        int timerValue = std::get<1>(monster->monsterList[bossIndex]);
+        int timerValue = std::get<1>(monster->monsterList[bossIndex])[0];
         QDateTime lowerBoundTime = boundTime.addSecs(timerValue * 0.9 * 60);
         QDateTime upperBoundTime = boundTime.addSecs(timerValue * 1.1 * 60);
 
@@ -231,7 +240,7 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
 
 void MainWindow::linkLabelClick(int index)
 {
-    QDesktopServices::openUrl( QUrl( std::get<2>(monster->monsterList[index])));
+    QDesktopServices::openUrl( QUrl( std::get<3>(monster->monsterList[index])));
 }
 
 void MainWindow::timerUpdate(int bossIndex, int ccIndex)
@@ -239,6 +248,11 @@ void MainWindow::timerUpdate(int bossIndex, int ccIndex)
     get<1>(listBossUI[bossIndex].timerList[ccIndex]) = get<1>(listBossUI[bossIndex].timerList[ccIndex]).addSecs(1 * 60);
 
     processTimer(get<1>(listBossUI[bossIndex].timerList[ccIndex]), get<2>(listBossUI[bossIndex].timerList[ccIndex]), get<3>(listBossUI[bossIndex].timerList[ccIndex]), bossIndex, ccIndex);
+}
+
+void MainWindow::changeMap(const QString& map)
+{
+    qDebug() << "changeMap: " << map;
 }
 
 void MainWindow::changeDisplayTime()
