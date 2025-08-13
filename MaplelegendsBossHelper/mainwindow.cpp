@@ -19,6 +19,8 @@
 #include <QScrollArea>
 #include <QWidget>
 #include <QComboBox>
+#include <QCheckBox>
+#include <QPropertyAnimation>
 
 #include "monster.h"
 
@@ -42,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     QFontMetrics fm(font);
     int buttonDisplayx = width - 75, buttonDisplayy = 25, buttonDisplayDimensionx = 50, buttonDisplayDimensiony = 50;
     int bossImagex = 75, bossImagey = 50, bossImageDimensionx = 150, bossImageDimensiony = 150;
-    int bossCombox = 200, bossComboy = 50, bossComboDimensionx = 20, bossComboDimensiony = 20;
+    int bossCombox = 50, bossComboy = 175, bossComboDimensionx = 20, bossComboDimensiony = 20;
     int bossNamex = 75, bossNamey = 25, bossNameDimensionx = 25, bossNameDimensiony = 30;
     int bossx = 50, bossy = 200, bossDimensionx = 50, bossDimensiony = 30;
     int spaceBetweenBossy = 30;
@@ -70,10 +72,44 @@ MainWindow::MainWindow(QWidget *parent)
     this->setAutoFillBackground(true);
     this->setPalette(palette);
 
+    QPushButton *sidePanelExpander = new QPushButton(this);
+    sidePanelExpander->setGeometry(width - 50, height / 2, 30, 30);
+    sidePanelExpander->setText("◀");
+    sidePanelExpander->setStyleSheet("QPushButton { background-color: #2C3E50; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 15px; } "
+                                     "QPushButton:hover { background-color: #34495E; } QPushButton:pressed { background-color: #1A252F; }");
+
+    QWidget *sidePanel = new QWidget(this);
+    sidePanel->setGeometry(width - 100, 0, 0, height * 10);
+    sidePanel->setStyleSheet("background-color: lightgrey;");
+
+    QObject::connect(sidePanelExpander, &QPushButton::clicked, this, [=]() { expandFilters(sidePanelExpander, sidePanel); });
+
     QPushButton *buttonDisplayTimer = new QPushButton(contentWidget);
     buttonDisplayTimer->setStyleSheet("QPushButton {border-image: url(:/images/timeChange.png) stretch; } QPushButton::hover { border-image: url(:/images/timeChangeHover.png) stretch; }");
     buttonDisplayTimer->setGeometry(QRect(buttonDisplayx, buttonDisplayy, buttonDisplayDimensionx, buttonDisplayDimensiony));
     connect(buttonDisplayTimer, &QPushButton::clicked, this, [=]() { changeDisplayTime(); });
+
+    QString checkboxStyle = R"(
+            QCheckBox {
+                font-size: 14px;
+                color: #333;
+                spacing: 8px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+                border-radius: 4px;
+                border: 2px solid #888;
+                background-color: white;
+            }
+            QCheckBox::indicator:hover {
+                border: 2px solid #555;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #4CAF50; /* Green when checked */
+                border: 2px solid #4CAF50;
+            }
+        )";
 
     for(int i=0;i< monster->monsterList.size();i++)
     {
@@ -84,6 +120,10 @@ MainWindow::MainWindow(QWidget *parent)
         MonsterUI bossUI;
 
         bossUI.mapMonster.push_back(0);
+
+        QCheckBox *checkbox = new QCheckBox(std::get<0>(monster->monsterList[i]), this);
+        checkbox->setGeometry(width - 150, 100 + i * 40, 0, 30);
+        checkbox->setStyleSheet(checkboxStyle);
 
         bossUI.bossImage = new QLabel(contentWidget);
         bossUI.bossImage->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -258,8 +298,45 @@ void MainWindow::timerUpdate(int bossIndex, int ccIndex)
 void MainWindow::changeMap(const QString& map, int bossIndex)
 {
     qDebug() << "changeMap: " << map;
-
     qDebug() << std::get<2>(monster->monsterList[bossIndex]).indexOf(map);
+
+    //listBossUI[bossIndex].mapMonster[bossIndex] = std::get<2>(monster->monsterList[bossIndex]).indexOf(map);
+}
+
+void MainWindow::expandFilters(QPushButton *sidePanelExpander, QWidget *sidePanel)
+{
+    int widthSidePanel = 0;
+    if(sidePanelExpander->text() == "◀")
+    {
+        widthSidePanel = 500;
+
+        sidePanelExpander->setText("▶");
+        QPropertyAnimation *animation = new QPropertyAnimation(sidePanelExpander, "geometry");
+        animation->setDuration(500); // milliseconds
+        animation->setStartValue(sidePanelExpander->geometry());
+
+        QRect endRect = sidePanelExpander->geometry();
+        endRect.moveLeft(700); // New X position
+        animation->setEndValue(endRect);
+
+        animation->setEasingCurve(QEasingCurve::OutCubic);
+        animation->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+    else
+    {
+        sidePanelExpander->setText("◀");
+    }
+
+    QPropertyAnimation *animation = new QPropertyAnimation(sidePanel, "geometry");
+    animation->setDuration(500);
+    animation->setStartValue(sidePanel->geometry());
+
+    QRect endRect = sidePanel->geometry();
+    endRect.setWidth(widthSidePanel);
+    animation->setEndValue(endRect);
+
+    animation->setEasingCurve(QEasingCurve::OutCubic);
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void MainWindow::changeDisplayTime()

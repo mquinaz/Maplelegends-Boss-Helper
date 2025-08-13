@@ -45,6 +45,7 @@ public slots:
     void changeDisplayTime();
     void timerUpdate(int bossIndex, int ccIndex);
     void changeMap(const QString& map, int bossIndex);
+    void expandFilters(QPushButton *sidePanelExpander, QWidget *sidePanel);
 
 private:
     Ui::MainWindow *ui;
