@@ -27,8 +27,7 @@ struct MonsterUI {
     QVector<QPushButton *> button1BossCC;
     QVector<QPushButton *> button2BossCC;
     QButtonGroup* groupBoss;
-    QVector<std::tuple<QTimer *, QDateTime, QDateTime, QDateTime>> timerList;
-    QVector<int> mapMonster;
+    QVector<QVector<std::tuple<QTimer *, QDateTime, QDateTime, QDateTime>>> timerList;
 };
 
 public:
@@ -43,14 +42,18 @@ public slots:
     void timerButtonClick(QAbstractButton*);
     void linkLabelClick(int index);
     void changeDisplayTime();
-    void timerUpdate(int bossIndex, int ccIndex);
+    void timerUpdate(int bossIndex, int ccIndex, int mapIndex);
     void changeMap(const QString& map, int bossIndex);
     void expandFilters(QPushButton *sidePanelExpander, QWidget *sidePanel);
+
+private:
+    void updateTimerLabels(int bossIndex);
 
 private:
     Ui::MainWindow *ui;
     Backup *file;
     Monster *monster;
     QVector<MonsterUI> listBossUI;
+    QVector<int> mapMonster;
 };
 #endif // MAINWINDOW_H
