@@ -45,7 +45,7 @@ public slots:
     void changeDisplayTime();
     void timerUpdate(int bossIndex, int ccIndex, int mapIndex);
     void changeMap(const QString& map, int bossIndex);
-    void expandFilters(QPushButton *sidePanelExpander, QWidget *sidePanel);
+    void expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel);
 
 private:
     void updateTimerLabels(int bossIndex);
@@ -56,5 +56,6 @@ private:
     Monster *monster;
     QVector<MonsterUI> listBossUI;
     QVector<int> mapMonster;
+    bool displaySideMenu;
 };
 #endif // MAINWINDOW_H
