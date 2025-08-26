@@ -27,7 +27,8 @@ struct MonsterUI {
     QVector<QPushButton *> button1BossCC;
     QVector<QPushButton *> button2BossCC;
     QButtonGroup* groupBoss;
-    QVector<QVector<std::tuple<QTimer *, QDateTime, QDateTime, QDateTime>>> timerList;
+    QVector<QVector<std::tuple<QTimer *, QDateTime, QDateTime, QDateTime, int>>> timerList;
+    QVector<int> originalMap;
 };
 
 public:
@@ -36,7 +37,7 @@ public:
 
     bool displayTime;
 
-    void processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDateTime upperBoundTime, int bossIndex, int ccIndex);
+    void processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDateTime upperBoundTime, int bossIndex, int ccIndex, int mapIndex);
 
 public slots:
     void timerButtonClick(QAbstractButton*);
