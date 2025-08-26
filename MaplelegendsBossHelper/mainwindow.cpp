@@ -192,7 +192,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     file = new Backup(monster->numCC, monster->monsterList);
     for(const auto it : file->backupTimerToProcess)
-        processTimer(get<0>(it), get<1>(it), get<2>(it), get<3>(it), get<4>(it), 0);
+    {
+        get<1>(listBossUI[get<3>(it)].timerList[get<4>(it)][get<5>(it)]) = get<0>(it);
+        get<2>(listBossUI[get<3>(it)].timerList[get<4>(it)][get<5>(it)]) = get<1>(it);
+        get<3>(listBossUI[get<3>(it)].timerList[get<4>(it)][get<5>(it)]) = get<2>(it);
+        get<4>(listBossUI[get<3>(it)].timerList[get<4>(it)][get<5>(it)]) = get<5>(it);
+
+        if(get<5>(it) == mapMonster[get<3>(it)])
+            processTimer(get<0>(it), get<1>(it), get<2>(it), get<3>(it), get<4>(it), get<5>(it));
+
+        get<0>(listBossUI[get<3>(it)].timerList[get<4>(it)][get<5>(it)])->start(1000);
+    }
 
     contentWidget->setMinimumSize(width, bossImagey + spaceBetweenBossesy * (numRow + 1));
     scrollArea->setWidget(contentWidget);
@@ -239,8 +249,7 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
             listBossUI[bossIndex].timer1BossCC[ccIndex]->setText("");
             listBossUI[bossIndex].timer2BossCC[ccIndex]->setText("");
 
-            file->formatTimerBackup(bossIndex, ccIndex, mapMonster[bossIndex]);
-            file->writeTimerBackup(monster->monsterList.size());
+            file->writeTimerBackup(monster->monsterList.size(), bossIndex, ccIndex, mapMonster[bossIndex]);
 
             break;
         case QMessageBox::Cancel:
@@ -268,8 +277,7 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
 
         get<0>(listBossUI[bossIndex].timerList[ccIndex][mapMonster[bossIndex]])->start(1000);
 
-        file->formatTimerBackup(bossIndex, ccIndex, mapMonster[bossIndex], boundTime.toString());
-        file->writeTimerBackup(monster->monsterList.size());
+        file->writeTimerBackup(monster->monsterList.size(), bossIndex, ccIndex, mapMonster[bossIndex], boundTime.toString());
     }
 }
 
@@ -377,6 +385,7 @@ void MainWindow::updateTimerLabels(int bossIndex)
 void MainWindow::processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDateTime upperBoundTime, int bossIndex, int ccIndex, int mapIndex)
 {
     QDateTime curTime = QDateTime::currentDateTime();
+    qDebug() << bossIndex << " --- " << mapIndex;
 
     if(!displayTime)
     {

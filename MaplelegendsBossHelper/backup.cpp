@@ -21,19 +21,27 @@ Backup::Backup(int numCC, QVector<std::tuple <QString, QList<int>, QStringList, 
             backupTimer.push_back(line);
 
             QString lineWithoutName = line.mid( line.indexOf(':') + 1, line.indexOf('\n'));
-            for(int c=0;c<numCC;c++)
-            {
-                QString lineCC = lineWithoutName.left( lineWithoutName.indexOf(','));
-                lineWithoutName = lineWithoutName.mid(lineWithoutName.indexOf(',') + 1, lineWithoutName.size());
 
-                if(lineCC != "")
+            for(int m=0;m<std::get<2>(monsterList[bossIndex]).size();m++)
+            {
+                QString lineMap = lineWithoutName.left(  lineWithoutName.indexOf('|'));
+                for(int c=0;c<numCC;c++)
                 {
-                    QDateTime boundTime = QDateTime::fromString(lineCC);
-                    int timerValue = std::get<1>(monsterList[bossIndex])[0];
-                    QDateTime lowerBoundTime = boundTime.addSecs(timerValue * 0.9 * 60);
-                    QDateTime upperBoundTime = boundTime.addSecs(timerValue * 1.1 * 60);
-                    backupTimerToProcess.push_back({boundTime, lowerBoundTime, upperBoundTime, bossIndex, c});
+                    QString lineCC = lineMap.left( lineMap.indexOf(','));
+                    lineMap = lineMap.mid(lineMap.indexOf(',') + 1, lineMap.size());
+
+                    if(lineCC != "")
+                    {
+
+                        QDateTime boundTime = QDateTime::fromString(lineCC);
+                        int timerValue = std::get<1>(monsterList[bossIndex])[0];
+                        QDateTime lowerBoundTime = boundTime.addSecs(timerValue * 0.9 * 60);
+                        QDateTime upperBoundTime = boundTime.addSecs(timerValue * 1.1 * 60);
+                        backupTimerToProcess.push_back({boundTime, lowerBoundTime, upperBoundTime, bossIndex, c, m});
+                    }
                 }
+
+                lineWithoutName = lineWithoutName.mid( lineWithoutName.indexOf('|') + 1, lineWithoutName.indexOf('\n'));
             }
 
             bossIndex++;
@@ -62,8 +70,10 @@ Backup::Backup(int numCC, QVector<std::tuple <QString, QList<int>, QStringList, 
     file.close();
 }
 
-void Backup::writeTimerBackup(int monsterListSize)
+void Backup::writeTimerBackup(int monsterListSize, int bossIndex, int ccIndex, int mapIndex, QString time)
 {
+    formatTimerBackup(bossIndex, ccIndex, mapIndex, time);
+
     if ( file.open(QIODevice::WriteOnly) )
     {
         QTextStream in( &file );
@@ -98,7 +108,6 @@ void Backup::formatTimerBackup(int bossIndex, int ccIndex, int mapIndex, QString
             backupString = backupString.mid(backupString.indexOf('|') + 1, backupString.size());
         }
 
-        qDebug() << backupString;
     }
 
     backupTimer[bossIndex] = final + time + "," + backupString.mid(backupString.indexOf(',') + 1, backupString.size());
