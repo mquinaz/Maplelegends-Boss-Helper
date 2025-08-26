@@ -239,7 +239,7 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
             listBossUI[bossIndex].timer1BossCC[ccIndex]->setText("");
             listBossUI[bossIndex].timer2BossCC[ccIndex]->setText("");
 
-            file->formatTimerBackup(bossIndex, ccIndex);
+            file->formatTimerBackup(bossIndex, ccIndex, mapMonster[bossIndex]);
             file->writeTimerBackup(monster->monsterList.size());
 
             break;
@@ -268,7 +268,7 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
 
         get<0>(listBossUI[bossIndex].timerList[ccIndex][mapMonster[bossIndex]])->start(1000);
 
-        file->formatTimerBackup(bossIndex, ccIndex, boundTime.toString());
+        file->formatTimerBackup(bossIndex, ccIndex, mapMonster[bossIndex], boundTime.toString());
         file->writeTimerBackup(monster->monsterList.size());
     }
 }
