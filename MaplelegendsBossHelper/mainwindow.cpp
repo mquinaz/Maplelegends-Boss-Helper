@@ -35,8 +35,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect  screenGeometry = screen->geometry();
-    int height = screenGeometry.height();
-    int width = screenGeometry.width();
+    height = screenGeometry.height();
+    width = screenGeometry.width();
     this->resize(width, height);
 
     displayTime = true;
@@ -335,7 +335,6 @@ void MainWindow::filterMonster(int bossIndex)
             listBossUI[bossIndex].timer1BossCC[c]->hide();
             listBossUI[bossIndex].timer2BossCC[c]->hide();
         }
-
     }
     else
     {
@@ -350,6 +349,55 @@ void MainWindow::filterMonster(int bossIndex)
             listBossUI[bossIndex].timer1BossCC[c]->show();
             listBossUI[bossIndex].timer2BossCC[c]->show();
         }
+    }
+
+    renderMonster(bossIndex);
+}
+
+void MainWindow::renderMonster(int bossIndex)
+{
+    int buttonDisplayx = width - 75, buttonDisplayy = 25, buttonDisplayDimensionx = 50, buttonDisplayDimensiony = 50;
+    int bossImagex = 75, bossImagey = 50, bossImageDimensionx = 150, bossImageDimensiony = 150;
+    int bossCombox = 50, bossComboy = 175, bossComboDimensionx = 20, bossComboDimensiony = 20;
+    int bossNamex = 75, bossNamey = 25, bossNameDimensionx = 25, bossNameDimensiony = 30;
+    int bossx = 50, bossy = 200, bossDimensionx = 50, bossDimensiony = 30;
+    int spaceBetweenBossy = 30;
+    int timerBossx = 100, timerBossy = 200, timerBossDimensionx = 50, timerBossDimensiony = 30;
+    int spaceBetweenTimerx = 50, spaceBetweenTimery = 30;
+    int buttonBossx = 210, buttonBossy = 200, buttonBossDimensionx = 30, buttonBossDimensiony = 30;
+    int spaceBetweenButtonx = 40, spaceBetweenButtony = 30;
+    int spaceBetweenBossesx = 300, spaceBetweenBossesy = 400;
+    int numRow = 0;
+    int numBossesPerRow = width / spaceBetweenBossesx;
+
+    for(int i=0, actuali=0;actuali<monster->monsterList.size();actuali++)
+    {
+        if(mapFilterMonster[actuali])
+            continue;
+
+        if(i != 0 && i % numBossesPerRow == 0)
+            numRow++;
+
+        if(actuali <= bossIndex)
+        {
+            i++;
+            continue;
+        }
+
+        listBossUI[actuali].bossImage->move(bossImagex + spaceBetweenBossesx * (i % numBossesPerRow),bossImagey + spaceBetweenBossesy * numRow);
+        listBossUI[actuali].combo->move(bossCombox + spaceBetweenBossesx * (i % numBossesPerRow),bossComboy + spaceBetweenBossesy * numRow);
+        listBossUI[actuali].bossName->move(bossNamex + spaceBetweenBossesx * (i % numBossesPerRow),bossNamey + spaceBetweenBossesy * numRow);
+
+        for(int c = 0; c < monster->numCC; c++)
+        {
+            listBossUI[actuali].bossCC[c]->move(bossx + spaceBetweenBossesx * (i % numBossesPerRow),bossy + spaceBetweenBossy * c + spaceBetweenBossesy * numRow);
+            listBossUI[actuali].timer1BossCC[c]->move(timerBossx + spaceBetweenBossesx * (i % numBossesPerRow),timerBossy + spaceBetweenTimery * c + spaceBetweenBossesy * numRow);
+            listBossUI[actuali].timer2BossCC[c]->move(timerBossx + spaceBetweenTimerx + spaceBetweenBossesx * (i % numBossesPerRow),timerBossy + spaceBetweenTimery * c + spaceBetweenBossesy * numRow);
+            listBossUI[actuali].button1BossCC[c]->move(buttonBossx + spaceBetweenBossesx * (i % numBossesPerRow),buttonBossy + spaceBetweenButtony * c + spaceBetweenBossesy * numRow);
+            listBossUI[actuali].button2BossCC[c]->move(buttonBossx + spaceBetweenButtonx + spaceBetweenBossesx * (i % numBossesPerRow),buttonBossy + spaceBetweenButtony * c + spaceBetweenBossesy * numRow);
+        }
+
+        i++;
     }
 }
 
@@ -370,7 +418,7 @@ void MainWindow::expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel)
     QRect endRectPanel= sidePanel->geometry();
 
     int panelWidth = 200;        // fixed width
-    int parentWidth = this->width();
+    int parentWidth = width;
 
     if(displaySideMenu)
     {

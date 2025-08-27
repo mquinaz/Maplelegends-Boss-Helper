@@ -54,6 +54,7 @@ public slots:
 
 private:
     void updateTimerLabels(int bossIndex);
+    void renderMonster(int bossIndex);
 
 private:
     Ui::MainWindow *ui;
@@ -63,5 +64,6 @@ private:
     QVector<int> mapMonster;
     QVector<bool> mapFilterMonster;
     bool displaySideMenu;
+    int width, height;
 };
 #endif // MAINWINDOW_H
