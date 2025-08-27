@@ -6,6 +6,8 @@
 #include <QLabel>
 #include <QFile>
 #include <QPushButton>
+#include <QCheckBox>
+#include <QComboBox>
 
 #include "backup.h"
 #include "monster.h"
@@ -19,6 +21,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 struct MonsterUI {
+    QCheckBox *checkbox;
+    QComboBox* combo;
     QLabel *bossImage;
     QPushButton *bossName;
     QVector<QLabel *> bossCC;
@@ -46,6 +50,7 @@ public slots:
     void timerUpdate(int bossIndex, int ccIndex, int mapIndex);
     void changeMap(const QString& map, int bossIndex);
     void expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel);
+    void filterMonster(int bossIndex);
 
 private:
     void updateTimerLabels(int bossIndex);
@@ -56,6 +61,7 @@ private:
     Monster *monster;
     QVector<MonsterUI> listBossUI;
     QVector<int> mapMonster;
+    QVector<bool> mapFilterMonster;
     bool displaySideMenu;
 };
 #endif // MAINWINDOW_H

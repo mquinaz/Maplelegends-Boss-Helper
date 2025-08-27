@@ -103,16 +103,18 @@ MainWindow::MainWindow(QWidget *parent)
         MonsterUI bossUI;
 
         mapMonster.push_back(0);
+        mapFilterMonster.push_back(false);
 
-        QCheckBox *checkbox = new QCheckBox(std::get<0>(monster->monsterList[i]), this);
-        checkbox->setGeometry(width - 190, 20 + i * 30, 150, 30);
-        checkbox->setStyleSheet(
+        bossUI.checkbox = new QCheckBox(std::get<0>(monster->monsterList[i]), this);
+        bossUI.checkbox->setGeometry(width - 190, 20 + i * 30, 150, 30);
+        bossUI.checkbox->setStyleSheet(
             "QCheckBox { font-size: 16px; color: #333; spacing: 8px; }"
             "QCheckBox::indicator { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #888; background-color: white; }"
             "QCheckBox::indicator:hover { border: 2px solid #555; }"
             "QCheckBox::indicator:checked { background-color: #4CAF50; border: 2px solid #4CAF50; }"
         );
-        //checkbox->hide();
+        bossUI.checkbox->hide();
+        connect(bossUI.checkbox, &QCheckBox::toggled, this, [=]() { filterMonster(i); });
 
         bossUI.bossImage = new QLabel(contentWidget);
         bossUI.bossImage->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -121,14 +123,14 @@ MainWindow::MainWindow(QWidget *parent)
         bossUI.bossImage->setGeometry(QRect(bossImagex + spaceBetweenBossesx * (i % numBossesPerRow),bossImagey + spaceBetweenBossesy * numRow,bossImageDimensionx,bossImageDimensiony));
 
         QStringList commands = std::get<2>(monster->monsterList[i]);
-        QComboBox* combo = new QComboBox(contentWidget);
-        combo->addItems(commands);
-        combo->setGeometry(QRect(bossCombox + spaceBetweenBossesx * (i % numBossesPerRow),bossComboy + spaceBetweenBossesy * numRow, bossComboDimensionx, bossComboDimensiony));
-        combo->setStyleSheet(
+        bossUI.combo = new QComboBox(contentWidget);
+        bossUI.combo->addItems(commands);
+        bossUI.combo->setGeometry(QRect(bossCombox + spaceBetweenBossesx * (i % numBossesPerRow),bossComboy + spaceBetweenBossesy * numRow, bossComboDimensionx, bossComboDimensiony));
+        bossUI.combo->setStyleSheet(
             "QComboBox { background-color: white; color: black; }"
             "QComboBox QAbstractItemView { background-color: white; color: black; }"
             );
-        connect( combo, &QComboBox::currentTextChanged, this, [=](const QString &text) { changeMap(text, i); });
+        connect(bossUI.combo, &QComboBox::currentTextChanged, this, [=](const QString &text) { changeMap(text, i); });
 
         bossUI.bossName = new QPushButton(contentWidget);
         bossUI.bossName->setStyleSheet("QLabel { color : white; border: 0px;} QPushButton { background-color: #4caf50; color: white; outline: none;}");
@@ -314,6 +316,43 @@ void MainWindow::changeMap(const QString& map, int bossIndex)
     updateTimerLabels(bossIndex);
 }
 
+void MainWindow::filterMonster(int bossIndex)
+{
+    mapFilterMonster[bossIndex] = !mapFilterMonster[bossIndex];
+
+    qDebug() << "Monster:" << std::get<0>(monster->monsterList[bossIndex]) << (mapFilterMonster[bossIndex] ? "checked" : "unchecked");
+
+    if(mapFilterMonster[bossIndex])
+    {
+        listBossUI[bossIndex].bossImage->hide();
+        listBossUI[bossIndex].bossName->hide();
+        listBossUI[bossIndex].combo->hide();
+        for(int c=0;c<6;c++)
+        {
+            listBossUI[bossIndex].bossCC[c]->hide();
+            listBossUI[bossIndex].button1BossCC[c]->hide();
+            listBossUI[bossIndex].button2BossCC[c]->hide();
+            listBossUI[bossIndex].timer1BossCC[c]->hide();
+            listBossUI[bossIndex].timer2BossCC[c]->hide();
+        }
+
+    }
+    else
+    {
+        listBossUI[bossIndex].bossImage->show();
+        listBossUI[bossIndex].bossName->show();
+        listBossUI[bossIndex].combo->show();
+        for(int c=0;c<6;c++)
+        {
+            listBossUI[bossIndex].bossCC[c]->show();
+            listBossUI[bossIndex].button1BossCC[c]->show();
+            listBossUI[bossIndex].button2BossCC[c]->show();
+            listBossUI[bossIndex].timer1BossCC[c]->show();
+            listBossUI[bossIndex].timer2BossCC[c]->show();
+        }
+    }
+}
+
 void MainWindow::expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel)
 {
     displaySideMenu = !displaySideMenu;
@@ -339,6 +378,8 @@ void MainWindow::expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel)
         sidePanelButton->setText("▶");
 
         sidePanel->show();
+        for(int i=0;i<listBossUI.size();i++)
+            listBossUI[i].checkbox->show();
 
         endRectPanel = QRect(parentWidth - panelWidth, 0, panelWidth, sidePanel->height());
     }
@@ -346,6 +387,8 @@ void MainWindow::expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel)
     {
         endRectButton.translate(sidePanel->width(), 0);
         sidePanelButton->setText("◀");
+        for(int i=0;i<listBossUI.size();i++)
+            listBossUI[i].checkbox->hide();
 
         endRectPanel = QRect(parentWidth, 0, panelWidth, sidePanel->height());
     }
