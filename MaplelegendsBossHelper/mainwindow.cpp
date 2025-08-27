@@ -44,21 +44,21 @@ MainWindow::MainWindow(QWidget *parent)
 
     QFont font("Courier New", 16, QFont::Bold);
     QFontMetrics fm(font);
-    int buttonDisplayx = width - 75, buttonDisplayy = 25, buttonDisplayDimensionx = 50, buttonDisplayDimensiony = 50;
-    int bossImagex = 75, bossImagey = 50, bossImageDimensionx = 150, bossImageDimensiony = 150;
-    int bossCombox = 50, bossComboy = 175, bossComboDimensionx = 20, bossComboDimensiony = 20;
-    int bossNamex = 75, bossNamey = 25, bossNameDimensionx = 25, bossNameDimensiony = 30;
-    int bossx = 50, bossy = 200, bossDimensionx = 50, bossDimensiony = 30;
-    int spaceBetweenBossy = 30;
-    int timerBossx = 100, timerBossy = 200, timerBossDimensionx = 50, timerBossDimensiony = 30;
-    int spaceBetweenTimerx = 50, spaceBetweenTimery = 30;
-    int buttonBossx = 210, buttonBossy = 200, buttonBossDimensionx = 30, buttonBossDimensiony = 30;
-    int spaceBetweenButtonx = 40, spaceBetweenButtony = 30;
-    int spaceBetweenBossesx = 300, spaceBetweenBossesy = 400;
-    int numRow = 0;
-    int numBossesPerRow = width / spaceBetweenBossesx;
+    buttonDisplayx = width - 75, buttonDisplayy = 25, buttonDisplayDimensionx = 50, buttonDisplayDimensiony = 50;
+    bossImagex = 75, bossImagey = 50, bossImageDimensionx = 150, bossImageDimensiony = 150;
+    bossCombox = 50, bossComboy = 175, bossComboDimensionx = 20, bossComboDimensiony = 20;
+    bossNamex = 75, bossNamey = 25, bossNameDimensionx = 25, bossNameDimensiony = 30;
+    bossx = 50, bossy = 200, bossDimensionx = 50, bossDimensiony = 30;
+    spaceBetweenBossy = 30;
+    timerBossx = 100, timerBossy = 200, timerBossDimensionx = 50, timerBossDimensiony = 30;
+    spaceBetweenTimerx = 50, spaceBetweenTimery = 30;
+    buttonBossx = 210, buttonBossy = 200, buttonBossDimensionx = 30, buttonBossDimensiony = 30;
+    spaceBetweenButtonx = 40, spaceBetweenButtony = 30;
+    spaceBetweenBossesx = 300, spaceBetweenBossesy = 400;
+    numRow = 0;
+    numBossesPerRow = width / spaceBetweenBossesx;
 
-    int sidePanelButtonx = width - 45, sidePanelButtony = height / 2, sidePanelButtonDimensionx = 30, sidePanelButtonDimensiony = 30;
+    sidePanelButtonx = width - 45, sidePanelButtony = height / 2, sidePanelButtonDimensionx = 30, sidePanelButtonDimensiony = 30;
 
     QScrollArea *scrollArea = new QScrollArea(this);
     scrollArea->setStyleSheet("background: transparent;");
@@ -67,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setWidgetResizable(true);
 
-    QWidget *contentWidget = new QWidget();
+    contentWidget = new QWidget();
 
     QPixmap bkgnd(":/images/background.jpg");
     bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
@@ -356,19 +356,7 @@ void MainWindow::filterMonster(int bossIndex)
 
 void MainWindow::renderMonster(int bossIndex)
 {
-    int buttonDisplayx = width - 75, buttonDisplayy = 25, buttonDisplayDimensionx = 50, buttonDisplayDimensiony = 50;
-    int bossImagex = 75, bossImagey = 50, bossImageDimensionx = 150, bossImageDimensiony = 150;
-    int bossCombox = 50, bossComboy = 175, bossComboDimensionx = 20, bossComboDimensiony = 20;
-    int bossNamex = 75, bossNamey = 25, bossNameDimensionx = 25, bossNameDimensiony = 30;
-    int bossx = 50, bossy = 200, bossDimensionx = 50, bossDimensiony = 30;
-    int spaceBetweenBossy = 30;
-    int timerBossx = 100, timerBossy = 200, timerBossDimensionx = 50, timerBossDimensiony = 30;
-    int spaceBetweenTimerx = 50, spaceBetweenTimery = 30;
-    int buttonBossx = 210, buttonBossy = 200, buttonBossDimensionx = 30, buttonBossDimensiony = 30;
-    int spaceBetweenButtonx = 40, spaceBetweenButtony = 30;
-    int spaceBetweenBossesx = 300, spaceBetweenBossesy = 400;
-    int numRow = 0;
-    int numBossesPerRow = width / spaceBetweenBossesx;
+    numRow = 0;
 
     for(int i=0, actuali=0;actuali<monster->monsterList.size();actuali++)
     {
@@ -377,12 +365,6 @@ void MainWindow::renderMonster(int bossIndex)
 
         if(i != 0 && i % numBossesPerRow == 0)
             numRow++;
-
-        if(actuali <= bossIndex)
-        {
-            i++;
-            continue;
-        }
 
         listBossUI[actuali].bossImage->move(bossImagex + spaceBetweenBossesx * (i % numBossesPerRow),bossImagey + spaceBetweenBossesy * numRow);
         listBossUI[actuali].combo->move(bossCombox + spaceBetweenBossesx * (i % numBossesPerRow),bossComboy + spaceBetweenBossesy * numRow);
@@ -399,6 +381,8 @@ void MainWindow::renderMonster(int bossIndex)
 
         i++;
     }
+
+    contentWidget->setMinimumSize(width, bossImagey + spaceBetweenBossesy * (numRow + 1));
 }
 
 void MainWindow::expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel)

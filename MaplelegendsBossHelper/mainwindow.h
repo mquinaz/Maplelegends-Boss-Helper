@@ -64,6 +64,23 @@ private:
     QVector<int> mapMonster;
     QVector<bool> mapFilterMonster;
     bool displaySideMenu;
+
+    QWidget *contentWidget;
+
     int width, height;
+    int buttonDisplayx, buttonDisplayy, buttonDisplayDimensionx, buttonDisplayDimensiony;
+    int bossImagex, bossImagey, bossImageDimensionx, bossImageDimensiony;
+    int bossCombox, bossComboy, bossComboDimensionx, bossComboDimensiony;
+    int bossNamex, bossNamey, bossNameDimensionx, bossNameDimensiony;
+    int bossx, bossy, bossDimensionx, bossDimensiony;
+    int spaceBetweenBossy;
+    int timerBossx, timerBossy, timerBossDimensionx, timerBossDimensiony;
+    int spaceBetweenTimerx, spaceBetweenTimery;
+    int buttonBossx, buttonBossy, buttonBossDimensionx, buttonBossDimensiony;
+    int spaceBetweenButtonx, spaceBetweenButtony;
+    int spaceBetweenBossesx, spaceBetweenBossesy;
+    int numRow;
+    int numBossesPerRow;
+    int sidePanelButtonx, sidePanelButtony, sidePanelButtonDimensionx, sidePanelButtonDimensiony;
 };
 #endif // MAINWINDOW_H
