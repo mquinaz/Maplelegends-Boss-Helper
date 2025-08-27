@@ -19,6 +19,7 @@ Backup::Backup(int numCC, QVector<std::tuple <QString, QList<int>, QStringList, 
         {
             QString line = in.readLine();
             backupTimer.push_back(line);
+            backupTimer[backupTimer.size() - 1] += "\n";
 
             QString lineWithoutName = line.mid( line.indexOf(':') + 1, line.indexOf('\n'));
 

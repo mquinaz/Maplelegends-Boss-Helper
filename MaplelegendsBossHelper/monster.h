@@ -6,10 +6,10 @@ class Monster
 public:
     Monster();
 
-    int numCC;
-
+public:
     //Name, spawn time, spawn maps, link, listMapsshowOnScreen
     QVector<std::tuple <QString, QList<int>, QStringList, QString, bool> > monsterList;
+    int numCC;
 };
 
 #endif // MONSTER_H

@@ -6,12 +6,13 @@ class Backup
 public:
     Backup(int numCC, QVector<std::tuple <QString, QList<int>, QStringList, QString, bool> > &monsterList);
 
-    QVector< std::tuple<QDateTime, QDateTime, QDateTime, int, int, int>> backupTimerToProcess;
-
     void writeTimerBackup(int monsterListSize, int bossIndex, int ccIndex, int mapIndex, QString time = "");
 
 private:
     void formatTimerBackup(int bossIndex, int ccIndex, int mapIndex, QString time = "");
+
+public:
+    QVector< std::tuple<QDateTime, QDateTime, QDateTime, int, int, int>> backupTimerToProcess;
 
 private:
     QFile file;
