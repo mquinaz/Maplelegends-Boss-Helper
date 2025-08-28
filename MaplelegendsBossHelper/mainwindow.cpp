@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent)
     displaySideMenu = false;
 
     QFont font("Courier New", 16, QFont::Bold);
+    QFont filterLabelFont("Segoe UI", 15, QFont::Bold);
+
     QFontMetrics fm(font);
     buttonDisplayx = width - 75, buttonDisplayy = 25, buttonDisplayDimensionx = 50, buttonDisplayDimensiony = 50;
     bossImagex = 75, bossImagey = 50, bossImageDimensionx = 150, bossImageDimensiony = 150;
@@ -59,6 +61,10 @@ MainWindow::MainWindow(QWidget *parent)
     numBossesPerRow = width / spaceBetweenBossesx;
 
     sidePanelButtonx = width - 45, sidePanelButtony = height / 2, sidePanelButtonDimensionx = 30, sidePanelButtonDimensiony = 30;
+    sidePanelx = width, sidePanely = 0, sidePanelDimensionx = 200, sidePanelDimensiony = height;
+
+    filterLabelx = width - sidePanelDimensionx, filterLabely = 0, filterLabelDimensionx = sidePanelDimensionx, filterLabelDimensiony = 30;
+    checkboxx = width - sidePanelDimensionx + 10, checkboxy = 40, checkboxDimensionx = sidePanelDimensionx - 10, checkboxDimensiony = 30;
 
     QScrollArea *scrollArea = new QScrollArea(this);
     scrollArea->setStyleSheet("background: transparent;");
@@ -83,30 +89,40 @@ MainWindow::MainWindow(QWidget *parent)
                                      "QPushButton:hover { background-color: #34495E; } QPushButton:pressed { background-color: #1A252F; }");
 
     QWidget *sidePanel = new QWidget(this);
-    sidePanel->setGeometry(width, 0, 200, height);
+    sidePanel->setGeometry(sidePanelx, sidePanely, sidePanelDimensionx, sidePanelDimensiony);
     sidePanel->setStyleSheet("background-color: lightgrey;");
     sidePanel->hide();
 
-    QObject::connect(sidePanelButton, &QPushButton::clicked, this, [=]() { expandFilters(sidePanelButton, sidePanel); });
+    QLabel *filterLabel = new QLabel(this);
+    filterLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    filterLabel->setFont(filterLabelFont);
+    filterLabel->setStyleSheet("QLabel { background-color:#d3d3d3; border-bottom:2px solid #aaa; padding:6px; }");
+    filterLabel->setText("Filter Bosses");
+    filterLabel->setAlignment(Qt::AlignCenter);
+    filterLabel->setGeometry(QRect(filterLabelx, filterLabely, filterLabelDimensionx, filterLabelDimensiony));
+    filterLabel->setObjectName("FilterLabel");
+    filterLabel->hide();
+
+    QObject::connect(sidePanelButton, &QPushButton::clicked, this, [=]() { expandFilters(sidePanelButton, sidePanel, filterLabel); });
 
     QPushButton *buttonDisplayTimer = new QPushButton(contentWidget);
     buttonDisplayTimer->setStyleSheet("QPushButton {border-image: url(:/images/timeChange.png) stretch; } QPushButton::hover { border-image: url(:/images/timeChangeHover.png) stretch; }");
     buttonDisplayTimer->setGeometry(QRect(buttonDisplayx, buttonDisplayy, buttonDisplayDimensionx, buttonDisplayDimensiony));
     connect(buttonDisplayTimer, &QPushButton::clicked, this, [=]() { changeDisplayTime(); });
 
+    listBossUI.reserve(monster->monsterList.size());
     for(int i=0;i< monster->monsterList.size();i++)
     {
         if(i != 0 && i % numBossesPerRow == 0)
             numRow++;
 
-        listBossUI.reserve(monster->monsterList.size());
         MonsterUI bossUI;
 
         mapMonster.push_back(0);
         mapFilterMonster.push_back(false);
 
         bossUI.checkbox = new QCheckBox(std::get<0>(monster->monsterList[i]), this);
-        bossUI.checkbox->setGeometry(width - 190, 20 + i * 30, 150, 30);
+        bossUI.checkbox->setGeometry(checkboxx, checkboxy + i * 30, checkboxDimensionx, checkboxDimensiony);
         bossUI.checkbox->setStyleSheet(
             "QCheckBox { font-size: 16px; color: #333; spacing: 8px; }"
             "QCheckBox::indicator { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #888; background-color: white; }"
@@ -374,7 +390,7 @@ void MainWindow::renderMonster()
     contentWidget->setMinimumSize(width, bossImagey + spaceBetweenBossesy * (numRow + 1));
 }
 
-void MainWindow::expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel)
+void MainWindow::expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel, QLabel *filterLabel)
 {
     displaySideMenu = !displaySideMenu;
 
@@ -389,29 +405,30 @@ void MainWindow::expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel)
     animationPanel->setDuration(500);
     animationPanel->setStartValue(sidePanel->geometry());
     QRect endRectPanel= sidePanel->geometry();
-
-    int panelWidth = 200;        // fixed width
-    int parentWidth = width;
+    int panelWidth = endRectPanel.width();
 
     if(displaySideMenu)
     {
-        endRectButton.translate(-200, 0);
+        endRectButton.translate(-panelWidth, 0);
         sidePanelButton->setText("▶");
 
+        filterLabel->show();
         sidePanel->show();
         for(int i=0;i<listBossUI.size();i++)
             listBossUI[i].checkbox->show();
 
-        endRectPanel = QRect(parentWidth - panelWidth, 0, panelWidth, sidePanel->height());
+        endRectPanel = QRect(width - panelWidth, 0, panelWidth, sidePanel->height());
     }
     else
     {
-        endRectButton.translate(sidePanel->width(), 0);
+        endRectButton.translate(panelWidth, 0);
         sidePanelButton->setText("◀");
+
+        filterLabel->hide();
         for(int i=0;i<listBossUI.size();i++)
             listBossUI[i].checkbox->hide();
 
-        endRectPanel = QRect(parentWidth, 0, panelWidth, sidePanel->height());
+        endRectPanel = QRect(width, 0, panelWidth, sidePanel->height());
     }
 
     animationButton->setEndValue(endRectButton);
@@ -474,7 +491,7 @@ void MainWindow::processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDa
     QDateTime curTime = QDateTime::currentDateTime();
     qDebug() << bossIndex << " --- " << mapIndex;
 
-    if(!displayTime)
+    if(displayTime)
     {
         qDebug() << boundTime.toString();
         qDebug() << curTime.secsTo(lowerBoundTime);
@@ -502,7 +519,7 @@ void MainWindow::processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDa
         else
         {
             listBossUI[bossIndex].timer2BossCC[ccIndex]->setText("");
-            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; font-size: 14px; border-color:rgba(212,225,229,122); background-color: #4caf50; color: white; outline: none;");
             get<0>(listBossUI[bossIndex].timerList[ccIndex][mapIndex])->stop();
         }
     }
@@ -512,7 +529,7 @@ void MainWindow::processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDa
         if(differenceTimers1 > 0)
         {
             QString timer1 = QDateTime(curTime.date() ,QTime(0,0)).addSecs(differenceTimers1).toString("hh:mm");
-            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText(timer1);
+            listBossUI[bossIndex].timer1BossCC[ccIndex]->setText("•" + timer1);
             listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
         }
         else
@@ -526,7 +543,7 @@ void MainWindow::processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDa
         {
             QString timer2 = QDateTime(curTime.date() ,QTime(0,0)).addSecs(differenceTimers2).toString("hh:mm");
 
-            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText(timer2);
+            listBossUI[bossIndex].timer2BossCC[ccIndex]->setText("•" + timer2);
             listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); background-color: #ce2f32; color: white; outline: none;");
 
             get<1>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]) = boundTime;

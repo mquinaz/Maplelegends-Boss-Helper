@@ -1,6 +1,19 @@
 #ifndef BACKUP_H
 #define BACKUP_H
 
+#include <QVector>
+#include <QString>
+#include <QList>
+
+/**
+ * A backup file in case you close app it can restore your active timers
+ * and ability to share amongst people
+ *
+ * the constructor creates the initial file or reads the existent one
+ * into backupTimerToProcess, which is processed later in mainwindow constructor
+ *
+ * writeTimerBackup() either writes a new time in the .txt or removes it
+ */
 class Backup
 {
 public:

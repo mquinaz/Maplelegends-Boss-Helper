@@ -1,7 +1,3 @@
-#include <QFile>
-#include <QString>
-#include <QDateTime>
-
 #include "monster.h"
 
 Monster::Monster()

@@ -39,21 +39,18 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    bool displayTime;
-
-    void processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDateTime upperBoundTime, int bossIndex, int ccIndex, int mapIndex);
-
-public slots:
+private slots:
     void timerButtonClick(QAbstractButton*);
     void linkLabelClick(int index);
     void changeDisplayTime();
     void timerUpdate(int bossIndex, int ccIndex, int mapIndex);
     void changeMap(const QString& map, int bossIndex);
-    void expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel);
+    void expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel, QLabel *filterLabel);
     void filterMonster(int bossIndex);
 
 private:
     void renderMonster();
+    void processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDateTime upperBoundTime, int bossIndex, int ccIndex, int mapIndex);
 
 private:
     Ui::MainWindow *ui;
@@ -63,6 +60,7 @@ private:
     QVector<int> mapMonster;
     QVector<bool> mapFilterMonster;
     bool displaySideMenu;
+    bool displayTime;
 
     QWidget *contentWidget;
 
@@ -73,6 +71,8 @@ private:
     int bossNamex, bossNamey, bossNameDimensionx, bossNameDimensiony;
     int bossx, bossy, bossDimensionx, bossDimensiony;
     int spaceBetweenBossy;
+    int filterLabelx, filterLabely, filterLabelDimensionx, filterLabelDimensiony;
+    int checkboxx, checkboxy, checkboxDimensionx, checkboxDimensiony;
     int timerBossx, timerBossy, timerBossDimensionx, timerBossDimensiony;
     int spaceBetweenTimerx, spaceBetweenTimery;
     int buttonBossx, buttonBossy, buttonBossDimensionx, buttonBossDimensiony;
@@ -81,5 +81,6 @@ private:
     int numRow;
     int numBossesPerRow;
     int sidePanelButtonx, sidePanelButtony, sidePanelButtonDimensionx, sidePanelButtonDimensiony;
+    int sidePanelx, sidePanely, sidePanelDimensionx, sidePanelDimensiony;
 };
 #endif // MAINWINDOW_H

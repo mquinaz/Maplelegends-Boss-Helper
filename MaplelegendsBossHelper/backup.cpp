@@ -1,5 +1,7 @@
 #include <QFile>
+#include <QVector>
 #include <QString>
+#include <QList>
 #include <QDateTime>
 
 #include "backup.h"
