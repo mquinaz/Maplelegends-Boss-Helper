@@ -53,8 +53,7 @@ public slots:
     void filterMonster(int bossIndex);
 
 private:
-    void updateTimerLabels(int bossIndex);
-    void renderMonster(int bossIndex);
+    void renderMonster();
 
 private:
     Ui::MainWindow *ui;

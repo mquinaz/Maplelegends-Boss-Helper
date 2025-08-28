@@ -199,7 +199,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     file = new Backup(monster->numCC, monster->monsterList);
-    for(const auto it : file->backupTimerToProcess)
+    for(auto &it : std::as_const(file->backupTimerToProcess))
     {
         get<1>(listBossUI[get<3>(it)].timerList[get<4>(it)][get<5>(it)]) = get<0>(it);
         get<2>(listBossUI[get<3>(it)].timerList[get<4>(it)][get<5>(it)]) = get<1>(it);
@@ -251,7 +251,7 @@ void MainWindow::timerButtonClick(QAbstractButton* button)
             qDebug( "yes" );
 
             get<0>(listBossUI[bossIndex].timerList[ccIndex][mapMonster[bossIndex]])->stop();
-
+            get<1>(listBossUI[bossIndex].timerList[ccIndex][mapMonster[bossIndex]]) = QDateTime();
             listBossUI[bossIndex].timer1BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122);");
             listBossUI[bossIndex].timer2BossCC[ccIndex]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122);");
             listBossUI[bossIndex].timer1BossCC[ccIndex]->setText("");
@@ -298,22 +298,11 @@ void MainWindow::timerUpdate(int bossIndex, int ccIndex, int mapIndex)
 {
     qDebug() << "boss: " << bossIndex << " cc: " << ccIndex << " map: " << mapIndex;
     qDebug() << get<1>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]).toString("hh:mm");
-    //get<1>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]) = get<1>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]).addSecs(-1 * 60);
 
     if(mapIndex == mapMonster[bossIndex])
         processTimer(get<1>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]),
                  get<2>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]),
                  get<3>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]), bossIndex, ccIndex, mapIndex);
-}
-
-void MainWindow::changeMap(const QString& map, int bossIndex)
-{
-    qDebug() << "changeMap: " << map;
-    qDebug() << std::get<2>(monster->monsterList[bossIndex]).indexOf(map);
-
-    mapMonster[bossIndex] = std::get<2>(monster->monsterList[bossIndex]).indexOf(map);
-
-    updateTimerLabels(bossIndex);
 }
 
 void MainWindow::filterMonster(int bossIndex)
@@ -351,10 +340,10 @@ void MainWindow::filterMonster(int bossIndex)
         }
     }
 
-    renderMonster(bossIndex);
+    renderMonster();
 }
 
-void MainWindow::renderMonster(int bossIndex)
+void MainWindow::renderMonster()
 {
     numRow = 0;
 
@@ -443,42 +432,41 @@ void MainWindow::expandFilters(QPushButton *sidePanelButton, QWidget *sidePanel)
     group->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
+void MainWindow::changeMap(const QString& map, int bossIndex)
+{
+    qDebug() << "changeMap: " << map;
+    qDebug() << std::get<2>(monster->monsterList[bossIndex]).indexOf(map);
+
+    mapMonster[bossIndex] = std::get<2>(monster->monsterList[bossIndex]).indexOf(map);
+
+    for(int c = 0; c < monster->numCC; c++)
+    {
+        if(get<1>(listBossUI[bossIndex].timerList[c][mapMonster[bossIndex]]) != QDateTime())
+        {
+            processTimer(get<1>(listBossUI[bossIndex].timerList[c][mapMonster[bossIndex]]),
+                         get<2>(listBossUI[bossIndex].timerList[c][mapMonster[bossIndex]]),
+                         get<3>(listBossUI[bossIndex].timerList[c][mapMonster[bossIndex]]), bossIndex, c, mapMonster[bossIndex]);
+        }
+        else
+        {
+            listBossUI[bossIndex].timer1BossCC[c]->setText("");
+            listBossUI[bossIndex].timer1BossCC[c]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+            listBossUI[bossIndex].timer2BossCC[c]->setText("");
+            listBossUI[bossIndex].timer2BossCC[c]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122); ");
+        }
+    }
+}
+
 void MainWindow::changeDisplayTime()
 {
     displayTime = !displayTime;
 
     for(int i=0;i< monster->monsterList.size();i++)
-        updateTimerLabels(i);
-}
-
-void MainWindow::updateTimerLabels(int bossIndex)
-{
-    for(int c = 0; c < monster->numCC; c++)
-    {
-        listBossUI[bossIndex].timer1BossCC[c]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122);");
-        listBossUI[bossIndex].timer2BossCC[c]->setStyleSheet("border: 1px solid; border-color:rgba(212,225,229,122);");
-        listBossUI[bossIndex].timer1BossCC[c]->setText("");
-        listBossUI[bossIndex].timer2BossCC[c]->setText("");
-
-        QString timer1, timer2;
-        if(displayTime)
-        {
-            timer1 = get<2>(listBossUI[bossIndex].timerList[c][mapMonster[bossIndex]]).toString("hh:mm");
-            timer2 = get<3>(listBossUI[bossIndex].timerList[c][mapMonster[bossIndex]]).toString("hh:mm");
-        }
-        else
-        {
-            int differenceTimers1 = get<1>(listBossUI[bossIndex].timerList[c][mapMonster[bossIndex]]).secsTo( get<2>(listBossUI[bossIndex].timerList[c][mapMonster[bossIndex]]));
-            int differenceTimers2 = get<1>(listBossUI[bossIndex].timerList[c][mapMonster[bossIndex]]).secsTo( get<3>(listBossUI[bossIndex].timerList[c][mapMonster[bossIndex]]));
-            timer1 = QDateTime(get<1>(listBossUI[bossIndex].timerList[c][mapMonster[bossIndex]]).date() ,QTime(0,0)).addSecs(differenceTimers1).toString("hh:mm");
-            timer2 = QDateTime(get<1>(listBossUI[bossIndex].timerList[c][mapMonster[bossIndex]]).date() ,QTime(0,0)).addSecs(differenceTimers2).toString("hh:mm");
-        }
-
-        if(listBossUI[bossIndex].timer1BossCC[c]->text() != "")
-            listBossUI[bossIndex].timer1BossCC[c]->setText(timer1);
-        if(listBossUI[bossIndex].timer2BossCC[c]->text() != "")
-            listBossUI[bossIndex].timer2BossCC[c]->setText(timer2);
-    }
+        for(int c = 0; c < monster->numCC; c++)
+            if(get<0>(listBossUI[i].timerList[c][mapMonster[i]])->isActive())
+                processTimer(get<1>(listBossUI[i].timerList[c][mapMonster[i]]),
+                             get<2>(listBossUI[i].timerList[c][mapMonster[i]]),
+                             get<3>(listBossUI[i].timerList[c][mapMonster[i]]), i, c, mapMonster[i]);
 }
 
 void MainWindow::processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDateTime upperBoundTime, int bossIndex, int ccIndex, int mapIndex)
@@ -510,8 +498,6 @@ void MainWindow::processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDa
             get<1>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]) = boundTime;
             get<2>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]) = lowerBoundTime;
             get<3>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]) = upperBoundTime;
-            if(!get<0>(listBossUI[bossIndex].timerList[ccIndex][mapIndex])->isActive())
-                get<0>(listBossUI[bossIndex].timerList[ccIndex][mapIndex])->start(1000); //mudar * 60
         }
         else
         {
@@ -546,8 +532,6 @@ void MainWindow::processTimer(QDateTime boundTime, QDateTime lowerBoundTime, QDa
             get<1>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]) = boundTime;
             get<2>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]) = lowerBoundTime;
             get<3>(listBossUI[bossIndex].timerList[ccIndex][mapIndex]) = upperBoundTime;
-            if(!get<0>(listBossUI[bossIndex].timerList[ccIndex][mapIndex])->isActive())
-                get<0>(listBossUI[bossIndex].timerList[ccIndex][mapIndex])->start(1000); //mudar * 60
         }
         else
         {

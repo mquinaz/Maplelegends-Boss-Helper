@@ -4,7 +4,7 @@
 class Backup
 {
 public:
-    Backup(int numCC, QVector<std::tuple <QString, QList<int>, QStringList, QString, bool> > &monsterList);
+    Backup(int numCC, QVector<std::tuple <QString, QList<int>, QStringList, QString> > &monsterList);
 
     void writeTimerBackup(int monsterListSize, int bossIndex, int ccIndex, int mapIndex, QString time = "");
 

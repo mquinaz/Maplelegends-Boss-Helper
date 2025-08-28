@@ -4,7 +4,7 @@
 
 #include "backup.h"
 
-Backup::Backup(int numCC, QVector<std::tuple <QString, QList<int>, QStringList, QString, bool> > &monsterList)
+Backup::Backup(int numCC, QVector<std::tuple <QString, QList<int>, QStringList, QString> > &monsterList)
 {
     filename = "time.txt";
 
