@@ -12,7 +12,7 @@ Finally, even if you close the application you are able to restore its timers ju
 
 Wed Sep 3 17:14:53 2025.
 
-### **To use, just download this folder and open MaplelegendsBossHelper.exe; This next section is just for developers.**
+### **To use, just download this folder and open Release/MaplelegendsBossHelper.exe; This next section is just for developers.**
 
 ## Compilation
 
