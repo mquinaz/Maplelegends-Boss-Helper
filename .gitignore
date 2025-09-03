@@ -8,4 +8,4 @@ CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
-Makefile
+Makefile*
