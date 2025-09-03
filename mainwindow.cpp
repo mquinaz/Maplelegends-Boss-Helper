@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->setWindowTitle("Maplelegends Boss Helper");
 
     //qDebug() << "Qt version:" << QT_VERSION_STR;
     monster = new Monster();
@@ -143,21 +144,18 @@ MainWindow::MainWindow(QWidget *parent)
         bossUI.bossImage->setAlignment(Qt::AlignCenter);
         bossUI.bossImage->setGeometry(QRect(bossImagex + spaceBetweenBossesx * (i % numBossesPerRow),bossImagey + spaceBetweenBossesy * numRow,bossImageDimensionx,bossImageDimensiony));
 
-        if(std::get<2>(monster->monsterList[i]).size() > 1)
-        {
-            QStringList commands = std::get<2>(monster->monsterList[i]);
-            bossUI.combo = new QComboBox(contentWidget);
-            bossUI.combo->addItems(commands);
-            bossUI.combo->setGeometry(QRect(bossCombox + spaceBetweenBossesx * (i % numBossesPerRow),bossComboy + spaceBetweenBossesy * numRow, bossComboDimensionx, bossComboDimensiony));
-            bossUI.combo->setFixedWidth(bossComboDimensionx);
-            bossUI.combo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-            bossUI.combo->view()->setMinimumWidth(bossComboMaxDimensionx);
-            bossUI.combo->setStyleSheet(
-                "QComboBox { background-color: white; color: black; }"
-                "QComboBox QAbstractItemView { background-color: white; color: black; }"
-                );
-            connect(bossUI.combo, &QComboBox::currentTextChanged, this, [=](const QString &text) { changeMap(text, i); });
-        }
+        QStringList commands = std::get<2>(monster->monsterList[i]);
+        bossUI.combo = new QComboBox(contentWidget);
+        bossUI.combo->addItems(commands);
+        bossUI.combo->setGeometry(QRect(bossCombox + spaceBetweenBossesx * (i % numBossesPerRow),bossComboy + spaceBetweenBossesy * numRow, bossComboDimensionx, bossComboDimensiony));
+        bossUI.combo->setFixedWidth(bossComboDimensionx);
+        bossUI.combo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        bossUI.combo->view()->setMinimumWidth(bossComboMaxDimensionx);
+        bossUI.combo->setStyleSheet(
+            "QComboBox { background-color: white; color: black; }"
+            "QComboBox QAbstractItemView { background-color: white; color: black; }"
+            );
+        connect(bossUI.combo, &QComboBox::currentTextChanged, this, [=](const QString &text) { changeMap(text, i); });
 
         bossUI.bossName = new QPushButton(contentWidget);
         bossUI.bossName->setStyleSheet("QLabel { color : white; border: 0px;} QPushButton { background-color: #4caf50; color: white; outline: none;}");

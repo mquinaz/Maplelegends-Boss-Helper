@@ -7,8 +7,8 @@ Dyle:,,,,,,|
 Eliza:,,,,,,|
 Faust:,,,,,,|
 Female Boss:,,,,,,|
-Griffey:,,,,,,|
-Headless Horseman:,,,,,,|,,,,,,|,,,,,,|,,,,,,|,,,,,,|,,,,,,|,,,,,,|,,,,,,|
+Griffey:,Wed Sep 3 16:33:06 2025,Wed Sep 3 16:33:07 2025,,,,|
+Headless Horseman:,Wed Sep 3 16:33:08 2025,,,,,|,,,,,,|,,,,,,|,,,,,,|,,,,,,|,,,,,,|,,,,,,|,,,,,,|
 Jr. Balrog:,,,,,,|
 Kacchuu Musha:,,,,,,|
 Kimera:,,,,,,|
