@@ -1,0 +1,44 @@
+<RCC>
+    <qresource prefix="/res"/>
+    <qresource prefix="/">
+        <file>images/Bosses/Mano.png</file>
+        <file>images/background.jpg</file>
+        <file>images/timeHover.png</file>
+        <file>images/time.png</file>
+        <file>images/cancelHover.png</file>
+        <file>images/cancel.png</file>
+        <file>images/Bosses/Deo.png</file>
+        <file>images/Bosses/Faust.png</file>
+        <file>images/Bosses/Seruf.png</file>
+        <file>images/Bosses/King Clang.png</file>
+        <file>images/Bosses/Timer.png</file>
+        <file>images/Bosses/Mushmom.png</file>
+        <file>images/Bosses/Zeno.png</file>
+        <file>images/Bosses/Dyle.png</file>
+        <file>images/Bosses/Zombie Mushmom.png</file>
+        <file>images/Bosses/Tae Roon.png</file>
+        <file>images/Bosses/King Sage Cat.png</file>
+        <file>images/Bosses/Jr. Balrog.png</file>
+        <file>images/Bosses/Eliza.png</file>
+        <file>images/Bosses/Snack Bar.png</file>
+        <file>images/Bosses/Kimera.png</file>
+        <file>images/Bosses/Snowman.png</file>
+        <file>images/Bosses/Blue Mushmom.png</file>
+        <file>images/Bosses/Spirit of Rock.png</file>
+        <file>images/Bosses/Manon.png</file>
+        <file>images/Bosses/Griffey.png</file>
+        <file>images/Bosses/Pianus(R).png</file>
+        <file>images/Bosses/Black Crow.png</file>
+        <file>images/Bosses/Leviathan.png</file>
+        <file>images/Bosses/Kacchuu Musha.png</file>
+        <file>images/Bosses/Dodo.png</file>
+        <file>images/Bosses/Female Boss.png</file>
+        <file>images/Bosses/Lilynouch.png</file>
+        <file>images/Bosses/Lyka.png</file>
+        <file>images/timeChangeHover.png</file>
+        <file>images/timeChange.png</file>
+        <file>images/Bosses/Stompy.png</file>
+        <file>images/Bosses/Headless Horseman.png</file>
+        <file>images/Bosses/Bigfoot.png</file>
+    </qresource>
+</RCC>

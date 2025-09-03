@@ -18,7 +18,7 @@ Developed in Fedora and crosscompiled to Windows using Qt version 6.9.1 https://
         cmake .. \
           -G Ninja \
           -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX=$HOME/qt6-host
+          -DCMAKE_INSTALL_PREFIX=$HOME/qt6-host-tools
     ```
         
     ninja -j$(nproc)
